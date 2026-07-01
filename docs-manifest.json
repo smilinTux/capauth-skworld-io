@@ -1,0 +1,77 @@
+{
+  "repo": "smilinTux/capauth",
+  "branch": "main",
+  "path": "docs",
+  "generated": "2026-06-30",
+  "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
+  "docs": [
+    {
+      "name": "ARCHITECTURE.md",
+      "title": "capauth — Architecture"
+    },
+    {
+      "name": "AUTHENTIK_CUSTOM_STAGE.md",
+      "title": "Authentik Custom Stage — Native PGP Challenge-Response"
+    },
+    {
+      "name": "AUTHENTIK_DEPLOYMENT_SKSSO.md",
+      "title": "CapAuth Authentik stage — sksso-prod deployment outline"
+    },
+    {
+      "name": "AUTHENTIK_FORGEJO_DEPLOYMENT.md",
+      "title": "CapAuth — Authentik & Forgejo Integration Deployment Guide"
+    },
+    {
+      "name": "AUTHENTIK_STRATEGY_DECISION.md",
+      "title": "Decision Document: Long-Term Strategy for the CapAuth ↔ Authentik Integration"
+    },
+    {
+      "name": "CAPAUTH_BUNKER_REMOTE_SIGNER.md",
+      "title": "CapAuth Bunker — NIP-46-style Remote Signer (SPIKE)"
+    },
+    {
+      "name": "CAPAUTH_OIDC_IDP.md",
+      "title": "CapAuth as an OIDC/OAuth2 Identity Provider (Track-2 spike)"
+    },
+    {
+      "name": "CLAIMS.md",
+      "title": "CapAuth OIDC Claims Reference"
+    },
+    {
+      "name": "CRYPTO_SPEC.md",
+      "title": "CapAuth Cryptographic Specification"
+    },
+    {
+      "name": "ENTERPRISE_MANAGED_KEYS.md",
+      "title": "CapAuth Enterprise Managed Keys / Keyrings — Research & Decision Doc"
+    },
+    {
+      "name": "INTEGRATION_BLUEPRINT.md",
+      "title": "CapAuth Integration Blueprint"
+    },
+    {
+      "name": "PQC_CAPAUTH_REVISIT.md",
+      "title": "PQC CapAuth Revisit — Identity/Crypto Layer Audit"
+    },
+    {
+      "name": "PQC_ROOT_MIGRATION.md",
+      "title": "PQC Root Migration (#3)"
+    },
+    {
+      "name": "PROTOCOL.md",
+      "title": "CapAuth Authentication Protocol"
+    },
+    {
+      "name": "ROOT_ROTATION_CEREMONY.md",
+      "title": "Sovereign Root-Key Rotation Ceremony"
+    },
+    {
+      "name": "ZERO_KNOWLEDGE_PROFILE.md",
+      "title": "CapAuth Zero-Knowledge Profile"
+    },
+    {
+      "name": "authentik-capauth.md",
+      "title": "authentik-capauth — CapAuth PGP stage baked into Authentik"
+    }
+  ]
+}
