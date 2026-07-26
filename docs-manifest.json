@@ -2,9 +2,13 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-07-25",
+  "generated": "2026-07-26",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
+    {
+      "name": "AIRGAPPED_SIGNING_WORKSTATION.md",
+      "title": "Air-Gapped Offline Signing Workstation Runbook"
+    },
     {
       "name": "ARCHITECTURE.md",
       "title": "capauth — Architecture"
