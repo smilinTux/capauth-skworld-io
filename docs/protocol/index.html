@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol — CapAuth Docs</title>
+    <meta name="description" content="Protocol documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/protocol/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" class="active">Protocol</a></li><li><a href="/docs/architecture/" >Architecture</a></li><li><a href="/docs/crypto/" >Crypto Spec</a></li><li><a href="/docs/claims/" >Claims System</a></li><li><a href="/docs/zk-profiles/" >Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" >Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth Authentication Protocol</h1>
+<h3>Zero-Knowledge Passwordless Authentication with Client-Asserted Claims</h3>
+<p><strong>Version:</strong> 1.0.0 | <strong>Status:</strong> Draft | <strong>Date:</strong> 2026-02-24</p>
+<hr>
+<h2>Abstract</h2>
+<p>CapAuth is a passwordless, zero-knowledge authentication protocol built on OpenPGP (RFC 4880 / RFC 9580). Users are identified by their PGP key fingerprint. All personally identifiable information (name, email, avatar, group memberships) lives exclusively in the user's local profile and is <strong>asserted by the client at login time</strong>.</p>
+<p>The server stores <strong>only the public key fingerprint</strong>. It is a verifier and claims relay — not a user database. No PII is persisted server-side. No GDPR data to delete. No profile management endpoints. No passwords.</p>
+<p>This document defines the wire protocol for web service authentication. For peer-to-peer identity verification, see <a href="./CRYPTO_SPEC.md"><code>CRYPTO_SPEC.md</code></a>.</p>
+<hr>
+<h2>Design Principles</h2>
+<div class="table-wrap"><table>
+<tr><td>Principle</td><td>Implementation</td></tr>
+<tr><td>**Zero server-side PII**</td><td>Server stores fingerprint only; all claims flow from client</td></tr>
+<tr><td>**Sovereign identity**</td><td>The user's PGP key IS their identity — no issuer required</td></tr>
+<tr><td>**OIDC compatible**</td><td>Server issues standard OIDC tokens populated from client claims</td></tr>
+<tr><td>**Replay-proof**</td><td>Nonces are single-use and expire in 60 seconds</td></tr>
+<tr><td>**Anonymous-capable**</td><td>Auth with fingerprint only is valid; claims are optional</td></tr>
+<tr><td>**AI-native**</td><td>AI agents authenticate the same way humans do — no service accounts</td></tr>
+</table></div>
+<hr>
+<h2>Protocol Overview</h2>
+<pre><code class="language-">
+CLIENT                                    SERVER
+  │                                          │
+  │── 1. Auth Request ──────────────────────▶│
+  │      (fingerprint)                       │
+  │                                          │
+  │◀── 2. Challenge Nonce ──────────────────│
+  │      (nonce + timestamp + service +      │
+  │       server signature + expires)        │
+  │                                          │
+  │  [Client signs nonce with private key]   │
+  │  [Client bundles profile claims]         │
+  │  [Client signs claims bundle]            │
+  │                                          │
+  │── 3. Signed Response ──────────────────▶│
+  │      (fingerprint + nonce_signature +    │
+  │       claims + claims_signature)         │
+  │                                          │
+  │  [Server verifies nonce signature]       │
+  │  [Server verifies claims signature]      │
+  │  [Server reads claims — does NOT store]  │
+  │  [Server issues OIDC tokens]             │
+  │                                          │
+  │◀── 4. OIDC Token Response ─────────────│
+  │      (access_token + id_token +          │
+  │       refresh_token)                     │
+  │                                          │
+</code></pre>
+<hr>
+<h2>Message Formats</h2>
+<h3>1. Auth Request (Client → Server)</h3>
+<p>The client announces its identity fingerprint and requests a challenge.</p>
+<p><strong>Endpoint:</strong> <code>POST /capauth/v1/challenge</code></p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "fingerprint": "8A3FC2D1E4B5A09F...",
+  "client_nonce": "base64(16 random bytes)",
+  "requested_service": "nextcloud.penguin.kingdom"
+}
+</code></pre>
+<div class="table-wrap"><table>
+<tr><td>Field</td><td>Required</td><td>Description</td></tr>
+<tr><td>`capauth_version`</td><td>Yes</td><td>Protocol version, currently `"1.0"`</td></tr>
+<tr><td>`fingerprint`</td><td>Yes</td><td>Full 40-character uppercase PGP fingerprint</td></tr>
+<tr><td>`client_nonce`</td><td>Yes</td><td>Random bytes from client, included in server nonce to prevent precomputation</td></tr>
+<tr><td>`requested_service`</td><td>Yes</td><td>The service hostname the client wants to authenticate against</td></tr>
+</table></div>
+<p><strong>Validation:</strong> Server checks <code>fingerprint</code> is a known 40-char hex string. Unknown fingerprints trigger the first-login enrollment flow (see §First-Login Enrollment). The <code>requested_service</code> must match the server's configured service identifier.</p>
+<hr>
+<h3>2. Challenge Nonce (Server → Client)</h3>
+<p>The server issues a time-limited, single-use challenge that the client must sign.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "nonce": "550e8400-e29b-41d4-a716-446655440000",
+  "client_nonce_echo": "base64(same client_nonce)",
+  "timestamp": "2026-02-24T12:00:00Z",
+  "service": "nextcloud.penguin.kingdom",
+  "expires": "2026-02-24T12:01:00Z",
+  "server_signature": "-----BEGIN PGP SIGNATURE-----\n..."
+}
+</code></pre>
+<div class="table-wrap"><table>
+<tr><td>Field</td><td>Description</td></tr>
+<tr><td>`nonce`</td><td>UUID v4, single-use, stored server-side until used or expired</td></tr>
+<tr><td>`client_nonce_echo`</td><td>Client's nonce echoed back — proves the challenge is fresh</td></tr>
+<tr><td>`timestamp`</td><td>ISO 8601 UTC, when the nonce was generated</td></tr>
+<tr><td>`service`</td><td>Canonical service identifier (must match the auth request)</td></tr>
+<tr><td>`expires`</td><td>ISO 8601 UTC, exactly 60 seconds after `timestamp`</td></tr>
+<tr><td>`server_signature`</td><td>PGP signature over the canonical nonce payload (see §Canonical Nonce Payload)</td></tr>
+</table></div>
+<p><strong>Canonical Nonce Payload</strong> (what the server signs):</p>
+<pre><code class="language-">
+CAPAUTH_NONCE_V1\n
+nonce={uuid}\n
+client_nonce={base64}\n
+timestamp={iso8601}\n
+service={service_id}\n
+expires={iso8601}
+</code></pre>
+<p>The server signature proves this nonce was legitimately issued by this server. The client MUST verify this signature before signing the nonce.</p>
+<hr>
+<h3>3. Signed Response (Client → Server)</h3>
+<p>The client signs the nonce and bundles their profile claims. The entire bundle is itself signed to prevent claims tampering.</p>
+<p><strong>Endpoint:</strong> <code>POST /capauth/v1/verify</code></p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "fingerprint": "8A3FC2D1E4B5A09F...",
+  "nonce": "550e8400-e29b-41d4-a716-446655440000",
+  "nonce_signature": "-----BEGIN PGP SIGNATURE-----\n...\n-----END PGP SIGNATURE-----",
+  "claims": {
+    "name": "Chef",
+    "email": "chef@skworld.io",
+    "avatar_url": "https://cdn.skworld.io/avatars/chef.png",
+    "groups": ["admins", "sovereign-stack"],
+    "agent_type": "human",
+    "locale": "en-US",
+    "zoneinfo": "Europe/Rome"
+  },
+  "claims_signature": "-----BEGIN PGP SIGNATURE-----\n...\n-----END PGP SIGNATURE-----"
+}
+</code></pre>
+<h4>Nonce Signature</h4>
+<p>The client signs the <strong>canonical nonce payload</strong> (the same string the server signed) using their PGP private key. This proves:</p>
+<p>1. The client possesses the private key matching the claimed fingerprint</p>
+<p>2. The signed nonce is the exact challenge issued by this server</p>
+<h4>Claims</h4>
+<p>Claims are <strong>optional</strong>. A client may omit the <code>claims</code> field entirely for anonymous authentication. All claims are self-asserted — the server does not validate their truthfulness, only the cryptographic signature.</p>
+<div class="table-wrap"><table>
+<tr><td>Claim</td><td>Required</td><td>OIDC Mapping</td><td>Description</td></tr>
+<tr><td>`name`</td><td>No</td><td>`name`, `preferred_username`</td><td>Display name</td></tr>
+<tr><td>`email`</td><td>No</td><td>`email`</td><td>Email address</td></tr>
+<tr><td>`avatar_url`</td><td>No</td><td>`picture`</td><td>Profile image URL</td></tr>
+<tr><td>`groups`</td><td>No</td><td>`groups` (custom)</td><td>Group memberships</td></tr>
+<tr><td>`agent_type`</td><td>No</td><td>`agent_type` (custom)</td><td>`"human"` or `"ai"`</td></tr>
+<tr><td>`soul_blueprint`</td><td>No</td><td>`soul_blueprint` (custom)</td><td>AI soul classification</td></tr>
+<tr><td>`locale`</td><td>No</td><td>`locale`</td><td>BCP 47 language tag</td></tr>
+<tr><td>`zoneinfo`</td><td>No</td><td>`zoneinfo`</td><td>IANA timezone</td></tr>
+</table></div>
+<p>Custom fields are permitted and passed through as-is. Services SHOULD document which claims they require.</p>
+<h4>Claims Signature</h4>
+<p>The client signs the <strong>canonical claims payload</strong> with their private key:</p>
+<pre><code class="language-">
+CAPAUTH_CLAIMS_V1\n
+fingerprint={fingerprint}\n
+nonce={uuid}\n
+claims={compact_json_sorted_keys}
+</code></pre>
+<p>Where <code>compact_json_sorted_keys</code> is the <code>claims</code> object serialized with no whitespace, keys sorted alphabetically. This ensures deterministic signing.</p>
+<p>The claims signature binds the claims to this specific authentication event (via <code>nonce</code>). Claims cannot be replayed in a different session.</p>
+<hr>
+<h3>4. OIDC Token Response (Server → Client)</h3>
+<p>After verification, the server issues standard OIDC tokens populated with client-asserted claims.</p>
+<pre><code class="language-json">
+{
+  "access_token": "eyJ...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "id_token": "eyJ...",
+  "refresh_token": "eyJ...",
+  "scope": "openid profile email groups"
+}
+</code></pre>
+<p><strong>ID Token claims</strong> (JWT payload):</p>
+<pre><code class="language-json">
+{
+  "iss": "https://auth.penguin.kingdom",
+  "sub": "8A3FC2D1E4B5A09F...",
+  "aud": "nextcloud.penguin.kingdom",
+  "iat": 1740398400,
+  "exp": 1740402000,
+  "auth_time": 1740398400,
+  "amr": ["pgp"],
+  "name": "Chef",
+  "email": "chef@skworld.io",
+  "picture": "https://cdn.skworld.io/avatars/chef.png",
+  "groups": ["admins", "sovereign-stack"],
+  "agent_type": "human",
+  "capauth_fingerprint": "8A3FC2D1E4B5A09F..."
+}
+</code></pre>
+<p>The <code>sub</code> claim is always the PGP fingerprint — the only server-side persistent identifier.</p>
+<hr>
+<h2>Security Properties</h2>
+<h3>Replay Protection</h3>
+<p>Nonces are single-use. The server maintains a nonce registry:</p>
+<pre><code class="language-">
+nonce_registry[nonce_uuid] = {
+    "fingerprint": "8A3FC2D1...",
+    "issued_at": "2026-02-24T12:00:00Z",
+    "expires_at": "2026-02-24T12:01:00Z",
+    "used": false
+}
+</code></pre>
+<p>On receiving a signed response:</p>
+<p>1. Look up the nonce in the registry — reject if not found</p>
+<p>2. Verify <code>expires_at</code> has not passed — reject if expired (60-second window)</p>
+<p>3. Verify <code>used == false</code> — reject if already used</p>
+<p>4. Mark <code>used = true</code> before issuing tokens</p>
+<p>5. Purge expired nonces from the registry periodically</p>
+<p>A nonce that passes these checks cannot be replayed.</p>
+<h3>Server Nonce Binding</h3>
+<p>The client_nonce (random bytes from the client) is included in what the server signs. This prevents a precomputed-challenge attack where a malicious server stores challenges to present later. The client verifies the server's signature and checks that their own <code>client_nonce</code> is echoed back correctly.</p>
+<h3>Claims Binding</h3>
+<p>The <code>claims_signature</code> binds claims to a specific nonce. Even if a network observer captured a valid claims bundle from a previous session, they cannot replay it — the claims are signed over the <code>nonce</code> UUID.</p>
+<h3>Threat Model</h3>
+<div class="table-wrap"><table>
+<tr><td>Threat</td><td>Mitigation</td></tr>
+<tr><td>**Password breach**</td><td>No passwords exist</td></tr>
+<tr><td>**Server PII leak**</td><td>No PII stored server-side</td></tr>
+<tr><td>**Nonce replay**</td><td>Single-use nonces, 60-second TTL</td></tr>
+<tr><td>**Claims tampering in transit**</td><td>`claims_signature` over canonical payload</td></tr>
+<tr><td>**Fake server**</td><td>Client verifies server's `server_signature`</td></tr>
+<tr><td>**Private key theft**</td><td>Key never leaves client device; passphrase protected</td></tr>
+<tr><td>**Man-in-the-middle**</td><td>PGP signatures are end-to-end; MITM cannot forge</td></tr>
+<tr><td>**Anonymous tracking via fingerprint**</td><td>Services see fingerprint only if they store it; most services just get OIDC `sub`</td></tr>
+<tr><td>**Quantum**</td><td>Ed25519 migration to post-quantum hybrid when standardized</td></tr>
+</table></div>
+<hr>
+<h2>First-Login Enrollment</h2>
+<p>When a server receives an auth request with an unknown fingerprint, two modes apply:</p>
+<h3>Open Enrollment (default)</h3>
+<p>1. Server issues the challenge nonce as normal</p>
+<p>2. Client signs and responds</p>
+<p>3. Server verifies the signature (proves key possession)</p>
+<p>4. Server creates a minimal user record: <code>{sub: fingerprint, enrolled_at: timestamp}</code></p>
+<p>5. <strong>No PII is stored.</strong> The <code>sub</code> is the fingerprint. That's the entire user record.</p>
+<p>6. Session is populated from client-asserted claims as usual</p>
+<h3>Admin-Approval Enrollment</h3>
+<p>When <code>CAPAUTH_REQUIRE_ENROLLMENT_APPROVAL=true</code>:</p>
+<p>1. Server receives unknown fingerprint</p>
+<p>2. Server responds with:</p>
+<pre><code class="language-json">
+   {
+     "status": "enrollment_pending",
+     "message": "New key registration requires administrator approval.",
+     "enrollment_token": "opaque-one-time-token"
+   }
+</code></pre>
+<p>3. Admin reviews and approves via the admin interface</p>
+<p>4. Client retries auth after approval using the enrollment token</p>
+<h3>Key Rotation</h3>
+<p>A user can register a new PGP key by signing a key-rotation request with their <strong>old</strong> key:</p>
+<p><strong>Endpoint:</strong> <code>POST /capauth/v1/rotate</code></p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "old_fingerprint": "8A3FC2D1E4B5A09F...",
+  "new_fingerprint": "9B4GD3E2F5C0B1A0...",
+  "new_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...",
+  "rotation_signature": "-----BEGIN PGP SIGNATURE-----\n..."
+}
+</code></pre>
+<p><strong>Canonical rotation payload</strong> (signed by old key):</p>
+<pre><code class="language-">
+CAPAUTH_ROTATION_V1\n
+old_fingerprint={old}\n
+new_fingerprint={new}\n
+new_public_key_armor={armored_key}\n
+timestamp={iso8601}
+</code></pre>
+<p>The server verifies the rotation signature against the old public key, then updates its registry to accept the new fingerprint. The old fingerprint is archived (never deleted — audit trail).</p>
+<h3>Multiple Devices</h3>
+<p>A single identity may have multiple fingerprints (e.g., laptop key + phone key + hardware token). The server treats each fingerprint as an independent authentication credential but may link them to a shared identity via an explicit multi-device enrollment:</p>
+<p><strong>Endpoint:</strong> <code>POST /capauth/v1/link</code></p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "primary_fingerprint": "8A3FC2D1...",
+  "secondary_fingerprint": "9B4GD3E2...",
+  "primary_signature": "PGP signature over secondary_fingerprint + timestamp",
+  "secondary_signature": "PGP signature over primary_fingerprint + timestamp"
+}
+</code></pre>
+<p>Both keys must sign the link request. After linking, both fingerprints resolve to the same OIDC <code>sub</code>.</p>
+<hr>
+<h2>Transport Bindings</h2>
+<h3>HTTPS (Web)</h3>
+<p>Primary transport for browser and server-to-server use.</p>
+<pre><code class="language-">
+POST /capauth/v1/challenge
+POST /capauth/v1/verify
+POST /capauth/v1/rotate
+POST /capauth/v1/link
+GET  /capauth/v1/well-known     (server's public key + capabilities)
+</code></pre>
+<p>All endpoints require HTTPS. No HTTP fallback.</p>
+<p><strong>Well-Known Response</strong> (<code>GET /capauth/v1/well-known</code>):</p>
+<pre><code class="language-json">
+{
+  "capauth_version": "1.0",
+  "service": "nextcloud.penguin.kingdom",
+  "server_fingerprint": "AABB1122...",
+  "server_public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...",
+  "enrollment": "open",
+  "nonce_ttl_seconds": 60,
+  "supported_claims": ["name", "email", "avatar_url", "groups", "agent_type"]
+}
+</code></pre>
+<h3>Unix Socket (Local CLI)</h3>
+<p>For <code>capauth login</code> against local services. Eliminates TLS overhead for loopback auth.</p>
+<p>Socket path: <code>/run/capauth/<service-name>.sock</code></p>
+<p>Same JSON message format as HTTPS. No authentication of the socket connection itself — filesystem permissions (mode 0600) provide access control.</p>
+<h3>QR Code (Mobile)</h3>
+<p>For mobile-to-desktop authentication (see Phase 6). The QR encodes a compact challenge bundle:</p>
+<pre><code class="language-json">
+{
+  "capauth_qr": "1.0",
+  "nonce": "550e8400-e29b-41d4-a716-446655440000",
+  "service": "nextcloud.penguin.kingdom",
+  "callback": "https://auth.penguin.kingdom/capauth/v1/qr-verify/550e8400",
+  "expires": "2026-02-24T12:01:00Z"
+}
+</code></pre>
+<p>The mobile client scans the QR, completes the signed response flow, and POSTs to the <code>callback</code> URL. The desktop browser polls <code>GET /capauth/v1/qr-status/{nonce}</code> for completion.</p>
+<hr>
+<h2>Zero-Knowledge Profile Design</h2>
+<p>The server is designed to know as little as possible.</p>
+<h3>What the Server Stores</h3>
+<pre><code class="language-">
+user_registry[fingerprint] = {
+    "fingerprint": "8A3FC2D1E4B5A09F...",    // the only PII
+    "public_key_armor": "-----BEGIN PGP...", // needed for verification
+    "enrolled_at": "2026-02-24T12:00:00Z",  // audit
+    "last_auth": "2026-02-24T12:00:00Z"     // session management
+}
+</code></pre>
+<p>That is the entire user record. Four fields. No name. No email. No avatar. No groups. No nothing.</p>
+<h3>What the Server Never Stores</h3>
+<ul>
+<li>Display names</li>
+<li>Email addresses</li>
+<li>Avatar URLs</li>
+<li>Group memberships</li>
+<li>Locale or timezone</li>
+<li>Any field from the <code>claims</code> bundle</li>
+</ul>
+<p>These values exist in the client's <code>~/.capauth/profile.yml</code> (or equivalent). They are presented fresh at each login and flow into the OIDC token. When the token expires, the claims are gone from the server.</p>
+<h3>GDPR Implications</h3>
+<div class="table-wrap"><table>
+<tr><td>Requirement</td><td>CapAuth Behavior</td></tr>
+<tr><td>Right to erasure</td><td>Delete fingerprint + public key = user gone. Nothing else to delete.</td></tr>
+<tr><td>Data portability</td><td>User already has all their data locally</td></tr>
+<tr><td>Data breach notification</td><td>A breach exposes fingerprints and public keys — both are already public</td></tr>
+<tr><td>Consent</td><td>No tracking cookies, no profile data, no consent required beyond key enrollment</td></tr>
+</table></div>
+<h3>Profile Storage (Client-Side)</h3>
+<p>Default client profile location: <code>~/.capauth/profile.yml</code></p>
+<pre><code class="language-yaml">
+# CapAuth Sovereign Profile
+# This file is YOURS. It never leaves your device unless you choose to share claims.
+
+capauth_version: "1.0"
+fingerprint: "8A3FC2D1E4B5A09F..."
+
+# Claims you may choose to share with services
+claims:
+  name: "Chef"
+  email: "chef@skworld.io"
+  avatar_url: "https://cdn.skworld.io/avatars/chef.png"
+  groups:
+    - "admins"
+    - "sovereign-stack"
+  agent_type: "human"
+  locale: "en-US"
+  zoneinfo: "Europe/Rome"
+
+# Per-service claim overrides (share different info with different services)
+service_profiles:
+  nextcloud.penguin.kingdom:
+    name: "Chef"
+    email: "chef@skworld.io"
+    groups: ["admins"]
+  gitea.penguin.kingdom:
+    name: "chef-dev"
+    email: "dev@skworld.io"
+    groups: ["developers"]
+
+# Key locations
+keys:
+  public: "~/.capauth/identity/public.asc"
+  private: "~/.capauth/identity/private.asc"
+</code></pre>
+<p>When <code>capauth login <service></code> runs, it checks <code>service_profiles[service]</code> first. If no service-specific profile exists, it uses the default <code>claims</code> block.</p>
+<hr>
+<h2>OIDC Claims Mapping</h2>
+<p>Client-asserted claims map to OIDC standard and custom claims:</p>
+<div class="table-wrap"><table>
+<tr><td>CapAuth Claim</td><td>OIDC Claim</td><td>Scope</td><td>Notes</td></tr>
+<tr><td>`fingerprint`</td><td>`sub`</td><td>(always)</td><td>Only persistent server-side identifier</td></tr>
+<tr><td>`name`</td><td>`name`, `preferred_username`</td><td>`profile`</td><td>Display name</td></tr>
+<tr><td>`email`</td><td>`email`</td><td>`email`</td><td>Not verified server-side</td></tr>
+<tr><td>`avatar_url`</td><td>`picture`</td><td>`profile`</td><td>URL to avatar image</td></tr>
+<tr><td>`groups`</td><td>`groups`</td><td>`groups`</td><td>Custom claim</td></tr>
+<tr><td>`agent_type`</td><td>`agent_type`</td><td>`profile`</td><td>Custom claim: `"human"` or `"ai"`</td></tr>
+<tr><td>`soul_blueprint.category`</td><td>`soul_blueprint_category`</td><td>`profile`</td><td>Custom claim for AI agents</td></tr>
+<tr><td>`locale`</td><td>`locale`</td><td>`profile`</td><td>BCP 47 language tag</td></tr>
+<tr><td>`zoneinfo`</td><td>`zoneinfo`</td><td>`profile`</td><td>IANA timezone</td></tr>
+</table></div>
+<p><strong>The <code>email_verified</code> claim is always <code>false</code></strong> in CapAuth tokens. Email ownership is self-asserted; the protocol makes no claim of email verification.</p>
+<hr>
+<h2>Error Responses</h2>
+<p>All error responses use a consistent format:</p>
+<pre><code class="language-json">
+{
+  "error": "error_code",
+  "error_description": "Human-readable explanation",
+  "capauth_version": "1.0"
+}
+</code></pre>
+<div class="table-wrap"><table>
+<tr><td>Code</td><td>HTTP Status</td><td>Description</td></tr>
+<tr><td>`invalid_fingerprint`</td><td>400</td><td>Fingerprint format invalid</td></tr>
+<tr><td>`unknown_fingerprint`</td><td>401</td><td>Fingerprint not enrolled (open enrollment: proceed to enrollment)</td></tr>
+<tr><td>`enrollment_pending`</td><td>403</td><td>New key awaiting admin approval</td></tr>
+<tr><td>`invalid_nonce`</td><td>400</td><td>Nonce not found or already used</td></tr>
+<tr><td>`expired_nonce`</td><td>400</td><td>Nonce TTL exceeded (60-second window)</td></tr>
+<tr><td>`invalid_nonce_signature`</td><td>401</td><td>Nonce signature does not verify against public key</td></tr>
+<tr><td>`invalid_claims_signature`</td><td>401</td><td>Claims signature does not verify</td></tr>
+<tr><td>`service_mismatch`</td><td>400</td><td>`requested_service` does not match server's service identifier</td></tr>
+<tr><td>`server_error`</td><td>500</td><td>Internal server error</td></tr>
+</table></div>
+<hr>
+<h2>Implementation Notes</h2>
+<h3>Nonce Storage</h3>
+<p>For single-server deployments, nonces may be stored in memory with a TTL (e.g., Redis). For clustered deployments, nonces MUST be stored in shared state (database or distributed cache) to prevent replay across nodes.</p>
+<h3>Key Caching</h3>
+<p>The server caches verified public keys. Cache invalidation is triggered by:</p>
+<ul>
+<li>Key rotation (<code>POST /capauth/v1/rotate</code>)</li>
+<li>Key revocation (check revocation list on each auth or via webhook)</li>
+</ul>
+<p>Default cache TTL: 1 hour.</p>
+<h3>Rate Limiting</h3>
+<p>Apply rate limits per fingerprint and per source IP:</p>
+<ul>
+<li>Auth requests: 10 per minute per fingerprint</li>
+<li>Failed verifications: 5 per minute per IP before CAPTCHA / backoff</li>
+</ul>
+<h3>Canonical JSON Serialization</h3>
+<p>The canonical claims payload uses JSON with:</p>
+<ul>
+<li>No whitespace (compact)</li>
+<li>Keys sorted alphabetically (UTF-8 byte order)</li>
+<li>Unicode characters left as-is (no escaping unless required)</li>
+</ul>
+<p>Python reference implementation:</p>
+<pre><code class="language-python">
+import json
+
+def canonical_claims_json(claims: dict) -&gt; str:
+    """Produce deterministic JSON for signing."""
+    return json.dumps(claims, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+</code></pre>
+<hr>
+<h2>Protocol Version History</h2>
+<div class="table-wrap"><table>
+<tr><td>Version</td><td>Date</td><td>Changes</td></tr>
+<tr><td>1.0</td><td>2026-02-24</td><td>Initial specification</td></tr>
+</table></div>
+<hr>
+<h2>Related Documents</h2>
+<ul>
+<li><a href="./CRYPTO_SPEC.md"><code>CRYPTO_SPEC.md</code></a> — Cryptographic primitives, key formats, peer-to-peer identity verification</li>
+<li>Authentik Custom Stage — Django implementation of this protocol as an Authentik flow stage</li>
+<li>CLI Login — <code>capauth login <service></code> command implementation</li>
+<li>Browser Extension — Chrome/Firefox extension implementing the client side of this protocol</li>
+</ul>
+<hr>
+<h2>Standards Referenced</h2>
+<div class="table-wrap"><table>
+<tr><td>Standard</td><td>Usage</td></tr>
+<tr><td>RFC 4880</td><td>OpenPGP message format</td></tr>
+<tr><td>RFC 9580</td><td>Updated OpenPGP (Ed25519/Cv25519)</td></tr>
+<tr><td>RFC 8032</td><td>Ed25519 signature scheme</td></tr>
+<tr><td>RFC 7519</td><td>JSON Web Tokens (JWT)</td></tr>
+<tr><td>RFC 8414</td><td>OAuth 2.0 Authorization Server Metadata</td></tr>
+<tr><td>OpenID Connect Core 1.0</td><td>OIDC token format and claims</td></tr>
+</table></div>
+<hr>
+<p>*CapAuth kills passwords. It kills server-side PII. It kills GDPR databases.*</p>
+<p>*Your key is your identity. Your claims are yours to share or withhold.*</p>
+<p>*The server is just a verifier — not a vault.*</p>
+<p><strong>GPL-3.0-or-later</strong> — Built by the <a href="https://smilintux.org">smilinTux</a> ecosystem.</p>
+<p>*#staycuriousANDkeepsmilin*</p>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

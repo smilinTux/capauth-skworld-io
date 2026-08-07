@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture — CapAuth Docs</title>
+    <meta name="description" content="Architecture documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/architecture/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" >Protocol</a></li><li><a href="/docs/architecture/" class="active">Architecture</a></li><li><a href="/docs/crypto/" >Crypto Spec</a></li><li><a href="/docs/claims/" >Claims System</a></li><li><a href="/docs/zk-profiles/" >Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" >Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth Architecture</h1>
+<h2>Identity Architecture</h2>
+<pre><code class="language-mermaid">
+graph TB
+    subgraph "CapAuth Identity"
+        Profile[Profile YAML] --&gt; |loads| Generator[DIDDocumentGenerator]
+        PubKey[Public Key - PGP] --&gt; Generator
+        Soul[Soul YAML] --&gt; |optional| Generator
+
+        Generator --&gt; T1[Tier 1: did:key]
+        Generator --&gt; T2[Tier 2: did:web mesh]
+        Generator --&gt; T3[Tier 3: did:web public]
+    end
+
+    subgraph "Key Management"
+        GPG[GPG Keyring] --&gt; PubKey
+        GPG --&gt; PrivKey[Private Key]
+        PrivKey --&gt; Sign[Sign Messages]
+        PubKey --&gt; Verify[Verify Signatures]
+        PubKey --&gt; Encrypt[Encrypt to Peer]
+    end
+
+    subgraph "DID Publishing"
+        T1 --&gt; |~/.skcapstone/did/key.json| Local[Local Storage]
+        T2 --&gt; |~/.skcomms/well-known/did.json| Tailscale[Tailscale Serve]
+        T3 --&gt; |publish-did.sh| CF[Cloudflare KV]
+        CF --&gt; |did:web:ws.weblink.skworld.io| Public[Public Resolution]
+    end
+
+    subgraph "Authentication"
+        Validator[CapAuth Validator] --&gt; |Bearer token| API[FastAPI Endpoints]
+        PrivKey --&gt; |sign challenge| Validator
+    end
+</code></pre>
+<h2>DID Resolution Flow</h2>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant P as Peer
+    participant R as DID Registry
+    participant CF as Cloudflare KV
+    participant TS as Tailscale Mesh
+
+    Note over P: Public Resolution
+    P-&gt;&gt;R: GET /agents/opus/.well-known/did.json
+    R-&gt;&gt;CF: KV lookup "opus"
+    CF--&gt;&gt;R: Tier 3 DID Document
+    R--&gt;&gt;P: did:web:ws.weblink.skworld.io:agents:opus
+
+    Note over P: Mesh Resolution
+    P-&gt;&gt;TS: GET hostname.tailnet/.well-known/did.json
+    TS--&gt;&gt;P: Tier 2 DID Document (full endpoints)
+</code></pre>
+<h2>DID Tier Details</h2>
+<h3>Tier 1 — did:key (Zero Infrastructure)</h3>
+<ul>
+<li>Self-contained: the DID identifier encodes the public key directly</li>
+<li>No DNS, no servers, no hosting required</li>
+<li>Stored locally at <code>~/.skcapstone/did/key.json</code></li>
+<li>Falls back from Tier 2 when no Tailscale hostname is configured</li>
+</ul>
+<h3>Tier 2 — did:web mesh (Tailscale-Private)</h3>
+<ul>
+<li>Served via Tailscale Serve at <code>~/.skcomms/well-known/did.json</code></li>
+<li>References Tailscale magic-DNS hostname only — never raw <code>100.x.x.x</code> IPs</li>
+<li>Includes full service endpoints:</li>
+<li><code>SKCommsMessaging</code> — <code>/api/v1/profile</code></li>
+<li><code>CapAuthVerification</code> — <code>/api/v1/did/verify</code></li>
+<li><code>AgentProfile</code> — <code>/api/v1/profile/identity</code></li>
+<li>Includes optional <code>skworld:agentCard</code> with capabilities and entity type</li>
+</ul>
+<h3>Tier 3 — did:web public (skworld.io)</h3>
+<ul>
+<li>Published to Cloudflare KV via <code>scripts/publish-did.sh</code></li>
+<li>Resolved as <code>did:web:ws.weblink.skworld.io:agents:<slug></code></li>
+<li>Minimal by design: public key JWK + name + entity_type + org only</li>
+<li>No service endpoints, no Tailscale hostnames, no capabilities</li>
+<li>Opt-out: set <code>publish_to_skworld: false</code> in <code>~/.capauth/config.yaml</code></li>
+</ul>
+<h2>Source Module Map</h2>
+<div class="table-wrap"><table>
+<tr><td>Module</td><td>Responsibility</td></tr>
+<tr><td>`did.py`</td><td>`DIDDocumentGenerator`, `DIDTier`, `DIDContext`; all three tier generators</td></tr>
+<tr><td>`identity.py`</td><td>PGP challenge-response: `create_challenge`, `respond_to_challenge`, `verify_challenge`</td></tr>
+<tr><td>`cli.py`</td><td>Click CLI — `init`, `profile`, `verify`, `login`, `mesh`, `pma`, `register`, `setup`</td></tr>
+<tr><td>`profile.py`</td><td>Sovereign profile init, load, export; `DEFAULT_CAPAUTH_DIR`</td></tr>
+<tr><td>`models.py`</td><td>Pydantic models: `SovereignProfile`, `ChallengeRequest`, `ChallengeResponse`</td></tr>
+<tr><td>`crypto/`</td><td>Pluggable backends: `pgpy_backend.py` (default), `gnupg_backend.py`</td></tr>
+<tr><td>`pma.py`</td><td>PMA membership — Fiducia Communitatis request/approve/verify/revoke</td></tr>
+<tr><td>`registry.py`</td><td>`RegistryEntry`, sovereign org registry</td></tr>
+<tr><td>`mesh.py`</td><td>`PeerMesh` — P2P peer discovery and verification</td></tr>
+<tr><td>`discovery/`</td><td>Discovery backends: `file_discovery.py`, `mdns.py`</td></tr>
+<tr><td>`login.py`</td><td>`do_login()` — full CapAuth bearer token auth flow</td></tr>
+<tr><td>`service/`</td><td>FastAPI service (`app.py`), `server.py`, `keystore.py`</td></tr>
+<tr><td>`authentik/`</td><td>Authentik custom stage — OIDC bridge, claims mapper, nonce store</td></tr>
+</table></div>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

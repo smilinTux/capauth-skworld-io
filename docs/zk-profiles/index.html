@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Knowledge Profiles — CapAuth Docs</title>
+    <meta name="description" content="Zero-Knowledge Profiles documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/zk-profiles/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" >Protocol</a></li><li><a href="/docs/architecture/" >Architecture</a></li><li><a href="/docs/crypto/" >Crypto Spec</a></li><li><a href="/docs/claims/" >Claims System</a></li><li><a href="/docs/zk-profiles/" class="active">Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" >Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth Zero-Knowledge Profile</h1>
+<p><strong>Version:</strong> 1.0.0 | <strong>Date:</strong> 2026-02-28 | <strong>Status:</strong> Implemented</p>
+<p>> <strong>Core invariant:</strong> The CapAuth Verification Service stores ONLY your PGP</p>
+<p>> fingerprint and public key. Every other claim — name, email, avatar, groups —</p>
+<p>> lives on YOUR device, is signed by YOUR key, and is verified-then-discarded</p>
+<p>> by the server. Nothing is persisted. There is no user database. There is no</p>
+<p>> profile management. There is nothing to breach.</p>
+<hr>
+<h2>Table of Contents</h2>
+<p>1. <a href="#problem-statement">Problem Statement</a></p>
+<p>2. <a href="#design-principles">Design Principles</a></p>
+<p>3. <a href="#protocol-specification">Protocol Specification</a></p>
+<p>4. <a href="#signed-claims-bundle">Signed Claims Bundle</a></p>
+<p>5. <a href="#server-side-storage-model">Server-Side Storage Model</a></p>
+<p>6. <a href="#data-flow">Data Flow</a></p>
+<p>7. <a href="#authentik-stage-integration">Authentik Stage Integration</a></p>
+<p>8. <a href="#gdpr-compliance">GDPR Compliance</a></p>
+<p>9. <a href="#threat-model">Threat Model</a></p>
+<p>10. <a href="#implementation-reference">Implementation Reference</a></p>
+<hr>
+<h2>Problem Statement</h2>
+<p>Every conventional authentication system requires the server to store user</p>
+<p>profiles. The server becomes a honeypot: breach the server, steal everyone's</p>
+<p>identity, email, group memberships.</p>
+<p>CapAuth inverts this. The server is a <strong>verifier and claims relay</strong>, not a</p>
+<p>store. It confirms that a signature is valid, then passes the client's claims</p>
+<p>through to the application token. The claims are never written to any database.</p>
+<hr>
+<h2>Design Principles</h2>
+<h3>1. Fingerprint-Only Identity Anchor</h3>
+<p>The server stores one 40-character string per user:</p>
+<pre><code class="language-">
+9B3AB00F411B064646879B92D10E637B4F8367DA
+</code></pre>
+<p>This is the user's PGP fingerprint — their sovereign, self-sovereign identity.</p>
+<p>Nothing else. No name. No email. No UUID assigned by the server.</p>
+<h3>2. Client-Asserted Claims</h3>
+<p>All profile information is <strong>asserted by the client</strong> at login time:</p>
+<pre><code class="language-json">
+{
+  "name": "Chef Jonathan",
+  "email": "chef@skworld.io",
+  "groups": ["admins", "sovereign-stack"]
+}
+</code></pre>
+<p>The client signs these claims cryptographically. The server verifies the</p>
+<p>signature but does not store the claims.</p>
+<h3>3. Claims Are Ephemeral</h3>
+<p>Claims live only in:</p>
+<ul>
+<li>The user's local <code>~/.capauth/profile.yml</code></li>
+<li>The OIDC token (duration-limited, typically 1 hour)</li>
+</ul>
+<p>When the token expires, the claims are gone from the server's perspective.</p>
+<p>The next login re-asserts them from the client's profile.</p>
+<h3>4. Server Changes Nothing</h3>
+<p>The server does not:</p>
+<ul>
+<li>Store names, emails, or group memberships</li>
+<li>Write to any user profile database</li>
+<li>Require "profile management" flows</li>
+<li>Have a "user account" concept beyond the fingerprint row</li>
+</ul>
+<h3>5. Privacy by Architecture</h3>
+<p>User changes their display name locally → every service sees the new name next</p>
+<p>login. No profile update API. No sync delay. No data consistency problem. The</p>
+<p>source of truth is the client's device.</p>
+<hr>
+<h2>Protocol Specification</h2>
+<h3>Phase 1 — Challenge</h3>
+<p>The client requests authentication from a service.</p>
+<p><strong>Request:</strong></p>
+<pre><code class="language-">
+POST /capauth/v1/challenge
+{
+  "fingerprint": "&lt;40-char-uppercase-hex&gt;",
+  "client_nonce": "&lt;base64-16-random-bytes&gt;"
+}
+</code></pre>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">
+{
+  "nonce": "&lt;uuid-v4&gt;",
+  "client_nonce": "&lt;echo-of-client-nonce&gt;",
+  "timestamp": "&lt;ISO-8601-UTC&gt;",
+  "expires": "&lt;ISO-8601-UTC-plus-60s&gt;",
+  "service": "&lt;service-id&gt;",
+  "server_signature": "&lt;ASCII-armored-detach-sig&gt;"
+}
+</code></pre>
+<p>The <code>server_signature</code> signs the canonical nonce payload (see below). Clients</p>
+<p>SHOULD verify this signature if they have the server's public key, to ensure</p>
+<p>they are talking to the expected service.</p>
+<p><strong>Canonical nonce payload (what the server signs):</strong></p>
+<pre><code class="language-">
+CAPAUTH_NONCE_V1
+nonce=&lt;uuid&gt;
+client_nonce=&lt;base64&gt;
+timestamp=&lt;ISO-8601&gt;
+service=&lt;service-id&gt;
+expires=&lt;ISO-8601&gt;
+</code></pre>
+<h3>Phase 2 — Verify (with ZK Claims Bundle)</h3>
+<p>The client signs both the nonce and a claims bundle, then submits both.</p>
+<p><strong>Request:</strong></p>
+<pre><code class="language-">
+POST /capauth/v1/verify
+{
+  "fingerprint": "&lt;40-char-uppercase-hex&gt;",
+  "nonce": "&lt;uuid from challenge&gt;",
+  "public_key_armor": "&lt;ASCII-armored PGP public key&gt;",
+  "nonce_signature": "&lt;ASCII-armored detach-sig over nonce payload&gt;",
+  "claims": {
+    "name": "Chef Jonathan",
+    "email": "chef@skworld.io",
+    "groups": ["admins"]
+  },
+  "claims_signature": "&lt;ASCII-armored detach-sig over claims payload&gt;"
+}
+</code></pre>
+<p><strong>Claims signature payload (what the client signs):</strong></p>
+<pre><code class="language-">
+CAPAUTH_CLAIMS_V1
+fingerprint=&lt;40-char-fp&gt;
+nonce=&lt;uuid&gt;
+claims={"email":"chef@skworld.io","groups":["admins"],"name":"Chef Jonathan"}
+</code></pre>
+<p>Claims are JSON-encoded with sorted keys and no whitespace to ensure identical</p>
+<p>serialization regardless of platform. The nonce binds the claims to this</p>
+<p>specific authentication event — a replayed claims bundle is useless.</p>
+<p><strong>Response (success):</strong></p>
+<pre><code class="language-json">
+{
+  "status": "ok",
+  "fingerprint": "&lt;fingerprint&gt;",
+  "enrolled": true,
+  "claims": {
+    "sub": "&lt;fingerprint&gt;",
+    "capauth_fingerprint": "&lt;fingerprint&gt;",
+    "amr": ["pgp"],
+    "name": "Chef Jonathan",
+    "preferred_username": "Chef Jonathan",
+    "email": "chef@skworld.io",
+    "email_verified": false,
+    "groups": ["admins"]
+  }
+}
+</code></pre>
+<p>The <code>claims</code> in the response are the OIDC-mapped claims — ready to embed in a</p>
+<p>JWT. They are computed on-the-fly and not written to any database.</p>
+<hr>
+<h2>Signed Claims Bundle</h2>
+<p>The claims bundle is the mechanism that makes ZK profiles work. It:</p>
+<p>1. Carries the client's self-asserted profile data</p>
+<p>2. Is bound to a specific nonce (single-use, 60-second TTL)</p>
+<p>3. Is signed with the client's PGP private key</p>
+<p>4. Is verified server-side against the enrolled public key</p>
+<p>5. Is <strong>never stored</strong> — consumed to produce the OIDC token, then discarded</p>
+<h3>Bundle Structure (client-side, before signing)</h3>
+<pre><code class="language-python">
+# What the client signs (canonical_claims_payload in verifier.py):
+claims_compact = json.dumps(claims, sort_keys=True, separators=(",", ":"))
+payload = "\n".join([
+    "CAPAUTH_CLAIMS_V1",
+    f"fingerprint={fingerprint}",
+    f"nonce={nonce}",
+    f"claims={claims_compact}",
+]).encode("utf-8")
+</code></pre>
+<h3>Security Properties</h3>
+<div class="table-wrap"><table>
+<tr><td>Property</td><td>Mechanism</td></tr>
+<tr><td>Authenticity</td><td>Signature verified against enrolled public key</td></tr>
+<tr><td>Freshness</td><td>Nonce is single-use with 60s TTL</td></tr>
+<tr><td>Binding</td><td>Fingerprint in payload ties claims to specific identity</td></tr>
+<tr><td>Replay protection</td><td>Nonce is consumed (deleted) on use</td></tr>
+<tr><td>Tampering detection</td><td>Any byte change invalidates the signature</td></tr>
+<tr><td>Forward secrecy</td><td>Claims expire with the OIDC token; no server-side record</td></tr>
+</table></div>
+<hr>
+<h2>Server-Side Storage Model</h2>
+<h3>What Is Stored (KeyStore, SQLite)</h3>
+<pre><code class="language-sql">
+CREATE TABLE enrolled_keys (
+    fingerprint       TEXT PRIMARY KEY,   -- 40-char PGP fingerprint
+    public_key_armor  TEXT NOT NULL,       -- ASCII-armored public key
+    enrolled_at       TEXT NOT NULL,       -- ISO 8601 enrollment timestamp
+    last_auth         TEXT,                -- Last successful auth timestamp
+    approved          INTEGER DEFAULT 1,   -- Admin approval flag
+    linked_to         TEXT                 -- Primary FP for multi-device
+);
+</code></pre>
+<p><strong>Total PII stored per user:</strong> <code>0 bytes</code></p>
+<p>The public key and fingerprint are not considered PII under GDPR (they are</p>
+<p>cryptographic identifiers, not personal data per se, though opinions vary by</p>
+<p>jurisdiction). Name, email, group memberships, and avatar URLs are <strong>not stored</strong>.</p>
+<h3>What Is NOT Stored</h3>
+<div class="table-wrap"><table>
+<tr><td>Data</td><td>Where It Lives</td></tr>
+<tr><td>Name</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+<tr><td>Email</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+<tr><td>Groups</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+<tr><td>Avatar URL</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+<tr><td>Soul blueprint</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+<tr><td>Agent type</td><td>`~/.capauth/profile.yml` on client device</td></tr>
+</table></div>
+<hr>
+<h2>Data Flow</h2>
+<pre><code class="language-">
+┌──────────────────────────────────────────────────────────────────┐
+│  CLIENT DEVICE                                                    │
+│                                                                   │
+│  ~/.capauth/profile.yml                                           │
+│  ├── name: "Chef Jonathan"                                        │
+│  ├── email: "chef@skworld.io"                                     │
+│  ├── groups: [admins]                                             │
+│  └── service_profiles: {...}                                      │
+│                                                                   │
+│  PGP Private Key (NEVER leaves device)                            │
+│  └── Signs: nonce payload + claims bundle                         │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             │  POST /capauth/v1/verify
+                             │  {fingerprint, nonce, nonce_sig,
+                             │   claims: {name, email, groups},
+                             │   claims_sig}
+                             │
+┌────────────────────────────▼─────────────────────────────────────┐
+│  CAPAUTH VERIFICATION SERVICE                                     │
+│                                                                   │
+│  1. Load public_key from enrolled_keys[fingerprint]               │
+│  2. Verify nonce_sig over canonical nonce payload    ✓            │
+│  3. Verify claims_sig over canonical claims payload  ✓            │
+│  4. Consume nonce (delete from nonce store)                       │
+│  5. Map claims → OIDC claims (map_claims())                       │
+│  6. Return OIDC claims                                            │
+│                                                                   │
+│  NOTHING WRITTEN: claims are processed in-memory only            │
+│  update_last_auth(fingerprint)  ← only DB write                  │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             │  {status: ok, claims: {sub, name,
+                             │   email, groups, amr: [pgp]}}
+                             │
+┌────────────────────────────▼─────────────────────────────────────┐
+│  APPLICATION / AUTHENTIK                                          │
+│                                                                   │
+│  Embeds claims in OIDC token (JWT, 1-hour expiry)                │
+│  Creates local session from token claims                          │
+│  MAY store claims in its own user table (application's choice)   │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2>Authentik Stage Integration</h2>
+<p>The <code>CapAuthStage</code> in <code>authentik/stage.py</code> implements the ZK principle for</p>
+<p>Authentik's authentication flow:</p>
+<h3>User Object Invariant</h3>
+<pre><code class="language-python">
+# From stage.py — what gets written to the Authentik user model:
+user.username = preferred_username  # from claims (ephemeral display, not stored as PII)
+user.name = display_name            # from claims (display only, overwritten each login)
+# user.email is NOT set on the Authentik user — email is claims-only
+</code></pre>
+<p>The Authentik <code>User</code> object is keyed on <code>username</code>, which is derived from the</p>
+<p>fingerprint as <code>capauth-{FP[:8].upper()}</code> when no name is claimed. This ensures</p>
+<p>the user record is stable and fingerprint-derived, not name-derived.</p>
+<p><strong>The user record that does get created in Authentik contains:</strong></p>
+<ul>
+<li><code>username</code>: <code>capauth-{fingerprint[:8]}</code> (fingerprint-derived, stable)</li>
+<li><code>name</code>: claimed display name (overwritten each login, not the identity anchor)</li>
+<li>No email in the Authentik user model — only in the OIDC token claims</li>
+</ul>
+<h3>Claims Flow Through the Stage</h3>
+<pre><code class="language-python">
+# stage.py — build_challenge() / verify_auth_response()
+claims = response.data.get("claims", {})          # from client
+oidc_claims = map_claims(fingerprint, claims)      # translate to OIDC
+context[PLAN_CONTEXT_PENDING_USER] = user          # user keyed on fingerprint
+context["capauth_claims"] = oidc_claims            # ephemeral, in-flow only
+</code></pre>
+<p>The <code>capauth_claims</code> context key lives only for the duration of the Authentik</p>
+<p>flow. It is consumed by the claims mapper stage and embedded in the OIDC token.</p>
+<p>It is not written to any Authentik database field.</p>
+<hr>
+<h2>GDPR Compliance</h2>
+<h3>Right to Erasure (Article 17)</h3>
+<p>To fully erase a user from a CapAuth-integrated system:</p>
+<pre><code class="language-bash">
+# Revoke from CapAuth service
+curl -X POST http://capauth:8420/capauth/v1/keys/revoke \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d '{"fingerprint": "9B3AB00F..."}'
+
+# That's it. One row deleted.
+# No user profile table to clean up.
+# No email address to hunt down.
+# No avatar URLs to purge.
+</code></pre>
+<p><strong>What this erases:</strong> The fingerprint row + public key (~700 bytes).</p>
+<p><strong>What this does NOT erase:</strong> Claims in existing unexpired OIDC tokens. This is</p>
+<p>an inherent property of stateless tokens and is standard GDPR practice (tokens</p>
+<p>have bounded lifetime).</p>
+<h3>Right to Access (Article 15)</h3>
+<p>A user can see everything the server stores about them:</p>
+<pre><code class="language-bash">
+curl http://capauth:8420/capauth/v1/keys/me \
+  -H "Authorization: Bearer $CAPAUTH_TOKEN"
+# Returns: {fingerprint, enrolled_at, last_auth}
+# That is literally all we have.
+</code></pre>
+<h3>Data Minimization (Article 5(1)(c))</h3>
+<p>We collect the minimum data technically necessary:</p>
+<ul>
+<li>Fingerprint: required to identify the key for verification</li>
+<li>Public key: required to verify signatures</li>
+<li>Enrollment timestamp: required for audit trail</li>
+<li>Last auth timestamp: required for rate limiting and security monitoring</li>
+</ul>
+<p>All other data (name, email, groups) is explicitly excluded from storage.</p>
+<hr>
+<h2>Threat Model</h2>
+<h3>What an Attacker Gets from Breaching the KeyStore</h3>
+<pre><code class="language-">
+fingerprints: [
+  "9B3AB00F411B064646879B92D10E637B4F8367DA",
+  "AABBCCDDEEFF00112233445566778899AABBCCDD",
+  ...
+]
+public_keys: [
+  "-----BEGIN PGP PUBLIC KEY BLOCK-----\n...",
+  ...
+]
+</code></pre>
+<p><strong>Impact:</strong> None for authentication (public keys are public). Zero PII. An</p>
+<p>attacker learns that certain PGP fingerprints have accounts, which is</p>
+<p>equivalent to a list of usernames — already public information.</p>
+<h3>What an Attacker CANNOT Get</h3>
+<ul>
+<li>Names (not stored)</li>
+<li>Email addresses (not stored)</li>
+<li>Group memberships (not stored)</li>
+<li>Any data that would enable identity-based phishing</li>
+</ul>
+<h3>Nonce Replay Attack</h3>
+<p><strong>Threat:</strong> Attacker intercepts a verify request and replays it.</p>
+<p><strong>Defense:</strong> Nonces are single-use. Each nonce is deleted from the nonce store</p>
+<p>when consumed. A replayed verify request will fail with <code>nonce not found</code>.</p>
+<p>TTL is 60 seconds — even a fresh nonce expires before it can be misused in</p>
+<p>most attack scenarios.</p>
+<h3>Claims Tampering Attack</h3>
+<p><strong>Threat:</strong> Attacker intercepts a verify request and replaces <code>"groups": ["users"]</code></p>
+<p>with <code>"groups": ["admins"]</code>.</p>
+<p><strong>Defense:</strong> The claims are signed. Any modification invalidates the signature.</p>
+<p>The server verifies the signature before processing claims.</p>
+<h3>Key Compromise</h3>
+<p><strong>Threat:</strong> Attacker steals the client's PGP private key.</p>
+<p><strong>Defense:</strong> Standard key revocation. The compromised key can be revoked by</p>
+<p>the admin via the <code>/capauth/v1/keys/revoke</code> endpoint. New authentication</p>
+<p>requires the private key, so a revoked key cannot generate new sessions.</p>
+<hr>
+<h2>Implementation Reference</h2>
+<h3>Core Files</h3>
+<div class="table-wrap"><table>
+<tr><td>File</td><td>Purpose</td></tr>
+<tr><td>`capauth/src/capauth/authentik/verifier.py`</td><td>Canonical payload builders + signature verification</td></tr>
+<tr><td>`capauth/src/capauth/authentik/claims_mapper.py`</td><td>Maps client claims → OIDC claims</td></tr>
+<tr><td>`capauth/src/capauth/authentik/stage.py`</td><td>Authentik stage — ZK flow orchestrator</td></tr>
+<tr><td>`capauth/src/capauth/service/app.py`</td><td>FastAPI service — standalone verifier</td></tr>
+<tr><td>`capauth/src/capauth/service/keystore.py`</td><td>SQLite key store — fingerprint-only schema</td></tr>
+<tr><td>`capauth/src/capauth/profile.py`</td><td>Client profile management</td></tr>
+</table></div>
+<h3>Canonical Payload Functions</h3>
+<pre><code class="language-python">
+# verifier.py
+def canonical_nonce_payload(nonce, client_nonce_echo, timestamp, service, expires) -&gt; bytes
+def canonical_claims_payload(fingerprint, nonce, claims) -&gt; bytes
+</code></pre>
+<h3>Adding a New Claim Type</h3>
+<p>1. Add the claim to <code>_KNOWN_CLAIMS</code> in <code>claims_mapper.py</code></p>
+<p>2. Map it in <code>map_claims()</code> under the appropriate scope</p>
+<p>3. Update the scope table in <code>SCOPE_CLAIMS</code></p>
+<p>4. Document it in <code>CLAIMS.md</code></p>
+<p>5. Update <code>profile.yml</code> examples</p>
+<p><strong>Invariant to preserve:</strong> New claims MUST come from the client. Never derive</p>
+<p>a claim from server-side lookup. The server is a relay, not an oracle.</p>
+<hr>
+<h2>Quick Reference</h2>
+<h3>Server stores per user</h3>
+<pre><code class="language-">
+fingerprint  →  9B3AB00F411B064646879B92D10E637B4F8367DA   (40 chars)
+public_key   →  -----BEGIN PGP PUBLIC KEY BLOCK-----...    (~3 KB)
+enrolled_at  →  2026-02-24T13:00:00Z                        (20 chars)
+last_auth    →  2026-02-28T09:15:32Z                        (20 chars)
+</code></pre>
+<h3>Client stores per user</h3>
+<pre><code class="language-">
+~/.capauth/identity/private.asc  →  PGP private key (STAYS HERE)
+~/.capauth/identity/public.asc   →  PGP public key
+~/.capauth/profile.yml           →  name, email, groups, service profiles
+</code></pre>
+<h3>GDPR deletion</h3>
+<pre><code class="language-bash">
+# Delete ONE row → user completely erased from CapAuth
+skcapstone coord claim &lt;revoke-task&gt; --agent mcp-builder
+capauth-service revoke --fingerprint 9B3AB00F...
+</code></pre>
+<hr>
+<p>*CapAuth: your identity is a key, not a database row.*</p>
+<p>*#staycuriousANDkeepsmilin*</p>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

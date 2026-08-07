@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Spec — CapAuth Docs</title>
+    <meta name="description" content="Crypto Spec documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/crypto/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" >Protocol</a></li><li><a href="/docs/architecture/" >Architecture</a></li><li><a href="/docs/crypto/" class="active">Crypto Spec</a></li><li><a href="/docs/claims/" >Claims System</a></li><li><a href="/docs/zk-profiles/" >Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" >Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth Cryptographic Specification</h1>
+<h3>PGP Identity, Key Management, and Challenge-Response Protocol</h3>
+<p><strong>Version:</strong> 1.0.0 | <strong>Classification:</strong> Public | <strong>Last Updated:</strong> 2026-02-23</p>
+<hr>
+<h2>Overview</h2>
+<p>CapAuth implements sovereign identity using the OpenPGP standard (RFC 4880 / RFC 9580). Every agent and human is identified by a PGP keypair. Authentication is challenge-response — no corporate auth server, no session tokens that expire at someone else's discretion. You ARE your key.</p>
+<p>This document covers the implementation-level cryptographic details: key generation, signature schemes, challenge-response protocol, the dual-backend architecture, and integration with SKCapstone's sync layer.</p>
+<hr>
+<h2>Dual Backend Architecture</h2>
+<p>CapAuth abstracts the crypto layer behind a <code>CryptoBackend</code> interface with two implementations:</p>
+<div class="table-wrap"><table>
+<tr><td>Backend</td><td>Module</td><td>Library</td><td>When to Use</td></tr>
+<tr><td>**PGPy**</td><td>`crypto/pgpy_backend.py`</td><td>PGPy (pure Python)</td><td>Default. No system deps. Portable.</td></tr>
+<tr><td>**GnuPG**</td><td>`crypto/gnupg_backend.py`</td><td>python-gnupg (wraps gpg2)</td><td>When system GPG keyring integration needed.</td></tr>
+</table></div>
+<h3>Backend Interface (`crypto/base.py`)</h3>
+<pre><code class="language-python">
+class CryptoBackend(ABC):
+    @abstractmethod
+    def generate_keypair(name: str, email: str, passphrase: str) -&gt; KeyMaterial: ...
+
+    @abstractmethod
+    def sign(data: bytes, private_key, passphrase: str) -&gt; bytes: ...
+
+    @abstractmethod
+    def verify(data: bytes, signature: bytes, public_key) -&gt; bool: ...
+
+    @abstractmethod
+    def encrypt(data: bytes, recipient_pubkey) -&gt; bytes: ...
+
+    @abstractmethod
+    def decrypt(data: bytes, private_key, passphrase: str) -&gt; bytes: ...
+
+    @abstractmethod
+    def export_public_key(key) -&gt; str: ...
+
+    @abstractmethod
+    def load_public_key(armored: str): ...
+</code></pre>
+<p>Both backends produce interoperable OpenPGP output. A key generated by PGPy can be verified by GnuPG and vice versa.</p>
+<h3>Backend Selection</h3>
+<pre><code class="language-python">
+from capauth.crypto import get_backend
+
+backend = get_backend()          # auto-detect (PGPy default)
+backend = get_backend("pgpy")    # force PGPy
+backend = get_backend("gnupg")   # force system GPG
+</code></pre>
+<p>Auto-detection order:</p>
+<p>1. If <code>CAPAUTH_BACKEND</code> env var is set, use that</p>
+<p>2. If PGPy is importable, use PGPy</p>
+<p>3. If <code>gpg2</code> is on PATH, use GnuPG</p>
+<p>4. Raise <code>CryptoBackendNotFound</code></p>
+<hr>
+<h2>Key Generation</h2>
+<h3>Supported Algorithms</h3>
+<div class="table-wrap"><table>
+<tr><td>Algorithm</td><td>Key Size</td><td>Use</td><td>Performance</td></tr>
+<tr><td>**Ed25519**</td><td>256-bit</td><td>Signing + certification</td><td>Fast, modern, recommended</td></tr>
+<tr><td>**Cv25519**</td><td>256-bit</td><td>Encryption subkey</td><td>Paired with Ed25519</td></tr>
+<tr><td>**RSA**</td><td>4096-bit</td><td>Signing + encryption</td><td>Slower, maximum compatibility</td></tr>
+</table></div>
+<p>Default: <strong>Ed25519 + Cv25519</strong> (modern, fast, small keys)</p>
+<p>Fallback: <strong>RSA-4096</strong> (when Ed25519 is not supported by peer)</p>
+<h3>Key Structure</h3>
+<pre><code class="language-">
+Primary Key: Ed25519 [C] (Certify)
+  └── Subkey: Cv25519 [E] (Encrypt)
+</code></pre>
+<p>Or for RSA:</p>
+<pre><code class="language-">
+Primary Key: RSA-4096 [SC] (Sign + Certify)
+  └── Subkey: RSA-4096 [E] (Encrypt)
+</code></pre>
+<h3>Generation Flow</h3>
+<pre><code class="language-">
+capauth init --name "Opus" --email "opus@skcapstone.local"
+  │
+  ├─ Backend.generate_keypair("Opus", "opus@skcapstone.local", passphrase)
+  │   ├─ Generate Ed25519 primary key [C]
+  │   ├─ Generate Cv25519 encryption subkey [E]
+  │   ├─ Bind UID: "Opus (SKCapstone Agent) &lt;opus@skcapstone.local&gt;"
+  │   └─ Protect private key with passphrase (S2K: Iterated+Salted SHA256)
+  │
+  ├─ Store private key → ~/.capauth/identity/private.asc (mode 0600)
+  ├─ Store public key → ~/.capauth/identity/public.asc (mode 0644)
+  ├─ Store profile → ~/.capauth/identity/profile.json
+  │   {
+  │     "name": "Opus",
+  │     "email": "opus@skcapstone.local",
+  │     "fingerprint": "9B3AB00F411B064646879B92D10E637B4F8367DA",
+  │     "algorithm": "ed25519",
+  │     "created_at": "2026-02-23T04:21:56Z",
+  │     "backend": "gnupg"
+  │   }
+  │
+  └─ Return SovereignProfile object
+</code></pre>
+<h3>Passphrase Requirements</h3>
+<div class="table-wrap"><table>
+<tr><td>Property</td><td>Requirement</td></tr>
+<tr><td>Minimum length</td><td>8 characters</td></tr>
+<tr><td>Recommended</td><td>16+ characters or passphrase (4+ words)</td></tr>
+<tr><td>S2K algorithm</td><td>Iterated+Salted SHA256</td></tr>
+<tr><td>S2K iterations</td><td>65536+ (tuned to ~100ms on target hardware)</td></tr>
+</table></div>
+<hr>
+<h2>Sovereign Profile</h2>
+<p>The <code>SovereignProfile</code> class is the core identity object:</p>
+<pre><code class="language-python">
+class SovereignProfile:
+    name: str
+    email: str
+    fingerprint: str
+    public_key: PGPKey | str
+    private_key: PGPKey | str  # encrypted at rest
+    created_at: datetime
+    backend: CryptoBackend
+
+    def sign(self, data: bytes, passphrase: str) -&gt; bytes: ...
+    def verify(self, data: bytes, signature: bytes) -&gt; bool: ...
+    def encrypt(self, data: bytes, recipient: SovereignProfile) -&gt; bytes: ...
+    def decrypt(self, data: bytes, passphrase: str) -&gt; bytes: ...
+    def export(self) -&gt; dict: ...  # JSON-serializable profile
+    def challenge(self) -&gt; ChallengePacket: ...
+    def respond(self, challenge: ChallengePacket, passphrase: str) -&gt; ResponsePacket: ...
+</code></pre>
+<h3>Profile Lifecycle</h3>
+<pre><code class="language-">
+INIT ──▶ ACTIVE ──▶ ROTATED
+  │                     │
+  │                     └──▶ Old key signed by new key
+  │                          (chain of trust preserved)
+  └──▶ REVOKED (key compromise)
+         └──▶ Revocation cert published
+              All tokens signed by this key become invalid
+</code></pre>
+<hr>
+<h2>Challenge-Response Protocol</h2>
+<p>Identity verification without revealing secrets. Used for agent-to-agent auth and agent-to-service auth.</p>
+<h3>Protocol Flow</h3>
+<pre><code class="language-">
+Verifier                          Prover (Agent)
+   │                                   │
+   ├── 1. Generate nonce (32 bytes) ──▶│
+   │      + timestamp                  │
+   │      + verifier fingerprint       │
+   │                                   │
+   │◀── 2. Sign(nonce ∥ ts ∥ fp) ─────┤
+   │      using prover's private key   │
+   │                                   │
+   ├── 3. Verify signature ───────────▶│
+   │      against prover's public key  │
+   │                                   │
+   ├── 4. Check nonce freshness        │
+   │      (reject if &gt; 5 min old)      │
+   │                                   │
+   └── 5. VERIFIED ✓                   │
+</code></pre>
+<h3>Challenge Packet</h3>
+<pre><code class="language-json">
+{
+  "capauth_protocol": "challenge-response/1.0",
+  "nonce": "base64(32 random bytes)",
+  "timestamp": "2026-02-23T04:30:00Z",
+  "verifier_fingerprint": "ABCD1234...",
+  "purpose": "identity_verification"
+}
+</code></pre>
+<h3>Response Packet</h3>
+<pre><code class="language-json">
+{
+  "capauth_protocol": "challenge-response/1.0",
+  "nonce": "base64(same nonce)",
+  "prover_fingerprint": "9B3AB00F...",
+  "signature": "-----BEGIN PGP SIGNATURE-----\n..."
+}
+</code></pre>
+<h3>Security Properties</h3>
+<div class="table-wrap"><table>
+<tr><td>Property</td><td>Guarantee</td></tr>
+<tr><td>**Replay protection**</td><td>Nonce + timestamp (5-min window)</td></tr>
+<tr><td>**Impersonation resistance**</td><td>Requires possession of private key</td></tr>
+<tr><td>**No secret transmission**</td><td>Only signature transmitted, not key</td></tr>
+<tr><td>**Offline verifiable**</td><td>Only needs prover's public key</td></tr>
+<tr><td>**Bidirectional**</td><td>Either party can challenge the other</td></tr>
+</table></div>
+<hr>
+<h2>Encryption Model</h2>
+<h3>Seed/Vault Encryption (SKCapstone Integration)</h3>
+<p>When SKCapstone sync pushes a seed or vault, CapAuth encrypts it:</p>
+<pre><code class="language-">
+Plaintext seed (JSON)
+  │
+  ├─ 1. GPG encrypt to recipient's public key
+  │     gpg --armor --encrypt --recipient &lt;fingerprint&gt; seed.json
+  │     Result: seed.json.gpg
+  │
+  ├─ 2. GPG sign with sender's private key
+  │     gpg --armor --sign seed.json.gpg
+  │     Result: seed.json.gpg.sig (or embedded signature)
+  │
+  └─ 3. Drop in sync outbox
+        Syncthing adds TLS 1.3 transport encryption
+</code></pre>
+<h3>Encryption Layers</h3>
+<pre><code class="language-">
+Layer 1: PGP at rest (CapAuth)
+  ├─ Algorithm: Cv25519 (ECDH) or RSA-4096
+  ├─ Session key: AES-256
+  └─ Only private key holder can decrypt
+
+Layer 2: TLS in transit (Syncthing)
+  ├─ Protocol: TLS 1.3
+  ├─ Key exchange: X25519
+  └─ No intermediary (P2P direct)
+
+Layer 3: Filesystem permissions
+  ├─ ~/.skcapstone/identity/ mode 0700
+  └─ Private keys mode 0600
+
+Layer 4: Legal (PMA)
+  └─ Fiducia Communitatis private jurisdiction
+</code></pre>
+<hr>
+<h2>Key Management</h2>
+<h3>Key Storage</h3>
+<div class="table-wrap"><table>
+<tr><td>File</td><td>Location</td><td>Permissions</td><td>Contents</td></tr>
+<tr><td>`private.asc`</td><td>`~/.capauth/identity/`</td><td>0600</td><td>ASCII-armored private key (passphrase-protected)</td></tr>
+<tr><td>`public.asc`</td><td>`~/.capauth/identity/`</td><td>0644</td><td>ASCII-armored public key (shareable)</td></tr>
+<tr><td>`profile.json`</td><td>`~/.capauth/identity/`</td><td>0644</td><td>Profile metadata (name, fingerprint, algo)</td></tr>
+</table></div>
+<h3>Key Rotation</h3>
+<pre><code class="language-">
+1. Generate new keypair
+2. Sign new public key with old private key (transition signature)
+3. Publish rotation notice:
+   {
+     "event": "key_rotation",
+     "old_fingerprint": "ABCD...",
+     "new_fingerprint": "EFGH...",
+     "transition_signature": "...",
+     "effective_at": "2026-03-01T00:00:00Z"
+   }
+4. Peers verify transition signature before trusting new key
+5. Grace period: accept both keys for 30 days
+6. Old key archived (never deleted -- audit trail)
+</code></pre>
+<h3>Key Revocation</h3>
+<pre><code class="language-">
+1. Generate revocation certificate:
+   gpg --gen-revoke &lt;fingerprint&gt;
+2. Publish to:
+   - Sovereign profile (revocations.json)
+   - Syncthing mesh (immediate propagation)
+   - IPFS (immutable record)
+3. All tokens signed by revoked key become immediately invalid
+4. Peers checking signatures will see revocation and reject
+</code></pre>
+<hr>
+<h2>Capability Token Signing</h2>
+<p>Tokens are PGP-signed JSON documents granting scoped access:</p>
+<pre><code class="language-">
+Token creation:
+  1. AI advocate constructs token JSON
+  2. AI advocate signs with own private key
+  3. Human countersigns with own private key (dual signature)
+  4. Token delivered to recipient
+
+Token verification:
+  1. Recipient receives token
+  2. Verify AI advocate signature against advocate's public key
+  3. Verify human signature against human's public key
+  4. Check: both signatures valid? Token not expired? Capability matches request?
+  5. Grant or deny access
+</code></pre>
+<h3>Dual Signature Model</h3>
+<pre><code class="language-">
+                 Token JSON
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+   AI Advocate                Human Owner
+   signs with                 countersigns with
+   advocate key               owner key
+        │                         │
+        └────────────┬────────────┘
+                     │
+              Dual-signed token
+              (both signatures required)
+</code></pre>
+<p>This prevents:</p>
+<ul>
+<li>AI acting without human consent (human sig missing)</li>
+<li>Human being impersonated (AI sig proves advocate relationship)</li>
+<li>Token forgery (PGP signatures are unforgeable without private key)</li>
+</ul>
+<hr>
+<h2>Test Coverage</h2>
+<p>27 pytest tests covering:</p>
+<div class="table-wrap"><table>
+<tr><td>Category</td><td>Tests</td><td>What's Tested</td></tr>
+<tr><td>Key generation</td><td>4</td><td>Ed25519, RSA, passphrase protection, backend selection</td></tr>
+<tr><td>Sign/verify</td><td>5</td><td>Valid signatures, tampered data rejection, wrong key rejection</td></tr>
+<tr><td>Encrypt/decrypt</td><td>4</td><td>Round-trip, wrong key fails, large payloads</td></tr>
+<tr><td>Challenge-response</td><td>5</td><td>Full protocol, replay rejection, expired nonce, wrong responder</td></tr>
+<tr><td>Profile lifecycle</td><td>4</td><td>Init, load, export, serialize</td></tr>
+<tr><td>CLI commands</td><td>3</td><td>init, verify, export</td></tr>
+<tr><td>Backend interop</td><td>2</td><td>PGPy-generated key verified by GnuPG and vice versa</td></tr>
+</table></div>
+<hr>
+<h2>Threat Model</h2>
+<div class="table-wrap"><table>
+<tr><td>Threat</td><td>Mitigation</td></tr>
+<tr><td>**Key theft (private key stolen)**</td><td>Passphrase protection (S2K), filesystem permissions (0600), revocation certificate</td></tr>
+<tr><td>**Impersonation (fake agent)**</td><td>Challenge-response requires private key possession</td></tr>
+<tr><td>**Replay attack**</td><td>Nonce + timestamp with 5-minute window</td></tr>
+<tr><td>**Man-in-the-middle**</td><td>PGP signatures are end-to-end; MITM cannot forge</td></tr>
+<tr><td>**Token forgery**</td><td>Dual PGP signature (AI + human); unforgeable without both keys</td></tr>
+<tr><td>**Key compromise propagation**</td><td>Revocation certificates; tokens signed by revoked key auto-invalid</td></tr>
+<tr><td>**Clone agent (identity duplication)**</td><td>Same key on two machines detected by nonce tracking + audit log</td></tr>
+<tr><td>**Weak passphrase**</td><td>Minimum 8 chars enforced; S2K iterations tuned for brute-force resistance</td></tr>
+<tr><td>**Quantum computing**</td><td>Ed25519 migration path to post-quantum algorithms when standardized</td></tr>
+</table></div>
+<hr>
+<h2>Standards Compliance</h2>
+<div class="table-wrap"><table>
+<tr><td>Standard</td><td>Usage</td></tr>
+<tr><td>**RFC 4880**</td><td>OpenPGP message format</td></tr>
+<tr><td>**RFC 9580**</td><td>Updated OpenPGP (Ed25519/Cv25519 support)</td></tr>
+<tr><td>**RFC 7748**</td><td>X25519 / Cv25519 key agreement</td></tr>
+<tr><td>**RFC 8032**</td><td>Ed25519 signature scheme</td></tr>
+<tr><td>**AES-256**</td><td>Symmetric session key encryption</td></tr>
+<tr><td>**SHA-256**</td><td>Hash algorithm for S2K and fingerprints</td></tr>
+<tr><td>**S2K**</td><td>String-to-Key passphrase derivation (Iterated+Salted)</td></tr>
+</table></div>
+<hr>
+<h2>Integration Points</h2>
+<h3>SKCapstone Sync</h3>
+<pre><code class="language-python">
+from capauth import SovereignProfile
+
+profile = SovereignProfile.load("~/.capauth/identity/")
+
+encrypted = profile.encrypt(seed_json, recipient=profile)
+signed = profile.sign(encrypted, passphrase=passphrase)
+
+# Drop in sync outbox -&gt; Syncthing propagates
+Path("~/.skcapstone/sync/outbox/seed.json.gpg").write_bytes(signed)
+</code></pre>
+<h3>Hemisphere Sync (Agent-to-Agent)</h3>
+<pre><code class="language-python">
+challenge = remote_agent.challenge()
+response = local_profile.respond(challenge, passphrase)
+remote_agent.verify_response(response)
+# Identity confirmed -- proceed with data exchange
+</code></pre>
+<hr>
+<h2>License</h2>
+<p><strong>GPL-3.0-or-later</strong> -- Cryptography should be free and auditable.</p>
+<p>Built by the <a href="https://smilintux.org">smilinTux</a> ecosystem.</p>
+<p>*Your key. Your identity. Your sovereignty.*</p>
+<p>#staycuriousANDkeepsmilin</p>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

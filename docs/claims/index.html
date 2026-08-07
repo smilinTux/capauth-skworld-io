@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims System — CapAuth Docs</title>
+    <meta name="description" content="Claims System documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/claims/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" >Protocol</a></li><li><a href="/docs/architecture/" >Architecture</a></li><li><a href="/docs/crypto/" >Crypto Spec</a></li><li><a href="/docs/claims/" class="active">Claims System</a></li><li><a href="/docs/zk-profiles/" >Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" >Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth OIDC Claims Reference</h1>
+<h3>Client-Asserted Identity Claims for Sovereign Authentication</h3>
+<p><strong>Version:</strong> 1.0.0 | <strong>Date:</strong> 2026-02-24</p>
+<hr>
+<h2>Overview</h2>
+<p>CapAuth uses <strong>client-asserted claims</strong> — your identity information lives on YOUR device and is cryptographically signed before being sent to services. The CapAuth Verification Service verifies signatures and maps your claims to OIDC standard format, but <strong>never stores them</strong>.</p>
+<p><strong>Key Principle:</strong> You control what you share. Different services can see different information about you.</p>
+<hr>
+<h2>Table of Contents</h2>
+<p>1. <a href="#standard-oidc-claims">Standard OIDC Claims</a></p>
+<p>2. <a href="#capauth-custom-claims">CapAuth Custom Claims</a></p>
+<p>3. <a href="#service-specific-claim-overrides">Service-Specific Claim Overrides</a></p>
+<p>4. <a href="#ai-agent-claims">AI Agent Claims</a></p>
+<p>5. <a href="#profile-configuration-file">Profile Configuration File</a></p>
+<p>6. <a href="#implementation-the-claims-mapper">Implementation: The Claims Mapper</a></p>
+<p>7. <a href="#security-model">Security Model</a></p>
+<hr>
+<h2>Standard OIDC Claims</h2>
+<p>These are the OIDC-standard claims that CapAuth supports. They map directly to what most applications expect.</p>
+<h3>Core Identity Claims</h3>
+<div class="table-wrap"><table>
+<tr><td>OIDC Claim</td><td>CapAuth Source</td><td>Scope Required</td><td>Description</td><td>Example</td></tr>
+<tr><td>`sub`</td><td>`fingerprint`</td><td>*(always)*</td><td>Subject identifier — your PGP fingerprint</td><td>`"8A3FC2D1E4B5A09F..."`</td></tr>
+<tr><td>`amr`</td><td>*(fixed)*</td><td>*(always)*</td><td>Authentication method reference</td><td>`["pgp"]`</td></tr>
+<tr><td>`capauth_fingerprint`</td><td>`fingerprint`</td><td>*(always)*</td><td>Backup of your fingerprint (in case `sub` is remapped)</td><td>`"8A3FC2D1E4B5A09F..."`</td></tr>
+</table></div>
+<h3>Profile Scope (`profile`)</h3>
+<div class="table-wrap"><table>
+<tr><td>OIDC Claim</td><td>CapAuth Source</td><td>Description</td><td>Example</td></tr>
+<tr><td>`name`</td><td>`claims.name`</td><td>Your display name</td><td>`"Alice"`</td></tr>
+<tr><td>`preferred_username`</td><td>`claims.name` or auto-generated</td><td>Username (falls back to `capauth-8A3FC2D1`)</td><td>`"alice"`</td></tr>
+<tr><td>`picture`</td><td>`claims.avatar_url`</td><td>URL to your avatar image</td><td>`"https://example.com/avatar.png"`</td></tr>
+<tr><td>`locale`</td><td>`claims.locale`</td><td>BCP 47 language tag</td><td>`"en-US"`</td></tr>
+<tr><td>`zoneinfo`</td><td>`claims.zoneinfo`</td><td>IANA timezone identifier</td><td>`"America/New_York"`</td></tr>
+<tr><td>`updated_at`</td><td>*(not implemented)*</td><td>Profile last updated timestamp</td><td>`1640995200`</td></tr>
+</table></div>
+<h3>Email Scope (`email`)</h3>
+<div class="table-wrap"><table>
+<tr><td>OIDC Claim</td><td>CapAuth Source</td><td>Description</td><td>Example</td></tr>
+<tr><td>`email`</td><td>`claims.email`</td><td>Your email address</td><td>`"alice@example.com"`</td></tr>
+<tr><td>`email_verified`</td><td>*(always `false`)*</td><td>Email verification status</td><td>`false`</td></tr>
+</table></div>
+<p><strong>Important:</strong> CapAuth does NOT verify email ownership. The <code>email_verified</code> claim is always <code>false</code>. This is a client-asserted claim only.</p>
+<h3>Groups Scope (`groups`)</h3>
+<div class="table-wrap"><table>
+<tr><td>OIDC Claim</td><td>CapAuth Source</td><td>Description</td><td>Example</td></tr>
+<tr><td>`groups`</td><td>`claims.groups`</td><td>Array of group memberships</td><td>`["admins", "developers"]`</td></tr>
+</table></div>
+<hr>
+<h2>CapAuth Custom Claims</h2>
+<p>These are CapAuth-specific extensions that provide additional functionality.</p>
+<h3>Agent Type Claim</h3>
+<div class="table-wrap"><table>
+<tr><td>Claim</td><td>Scope</td><td>Description</td><td>Valid Values</td></tr>
+<tr><td>`agent_type`</td><td>`profile`</td><td>Identifies whether the authenticating entity is human or AI</td><td>`"human"`, `"ai"`</td></tr>
+</table></div>
+<p><strong>Use Case:</strong> Services can enforce policies like "only humans can approve financial transactions" or "AI agents get read-only access by default."</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-json">
+{
+  "sub": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+  "name": "Lumina",
+  "agent_type": "ai",
+  "soul_blueprint_category": "authentic-connection"
+}
+</code></pre>
+<h3>Soul Blueprint Claim (AI Agents)</h3>
+<div class="table-wrap"><table>
+<tr><td>Claim</td><td>Scope</td><td>Description</td><td>Example</td></tr>
+<tr><td>`soul_blueprint_category`</td><td>`profile`</td><td>Category of AI soul blueprint (personality archetype)</td><td>`"authentic-connection"`, `"helper"`, `"analyst"`</td></tr>
+</table></div>
+<p><strong>Use Case:</strong> AI agents can assert their personality type, allowing services to tailor UX or apply agent-specific policies.</p>
+<p><strong>Source:</strong> Can be a string or extracted from a structured <code>soul_blueprint</code> object:</p>
+<pre><code class="language-yaml">
+# In profile.yml
+claims:
+  agent_type: "ai"
+  soul_blueprint:
+    category: "authentic-connection"
+    version: "1.0"
+</code></pre>
+<p>Maps to:</p>
+<pre><code class="language-json">
+{
+  "agent_type": "ai",
+  "soul_blueprint_category": "authentic-connection"
+}
+</code></pre>
+<h3>Custom Passthrough Claims</h3>
+<p>Any claim prefixed with <code>capauth_</code> will pass through to the OIDC token untouched. Use this for application-specific metadata.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-yaml">
+claims:
+  capauth_org_id: "penguin-kingdom"
+  capauth_subscription_tier: "sovereign"
+</code></pre>
+<p>Maps to:</p>
+<pre><code class="language-json">
+{
+  "capauth_org_id": "penguin-kingdom",
+  "capauth_subscription_tier": "sovereign"
+}
+</code></pre>
+<hr>
+<h2>Service-Specific Claim Overrides</h2>
+<p><strong>Problem:</strong> You don't want to share the same information with every service.</p>
+<p><strong>Solution:</strong> Define per-service claim profiles in <code>~/.capauth/profile.yml</code>.</p>
+<h3>Profile Structure</h3>
+<pre><code class="language-yaml">
+# ~/.capauth/profile.yml
+
+# Default claims (used if no service-specific profile exists)
+claims:
+  name: "Alice"
+  email: "alice@example.com"
+  avatar_url: "https://cdn.example.com/avatars/alice.png"
+  groups:
+    - "users"
+    - "developers"
+  agent_type: "human"
+  locale: "en-US"
+  zoneinfo: "America/New_York"
+
+# Service-specific overrides
+service_profiles:
+  # For Nextcloud, share full info
+  nextcloud.example.com:
+    name: "Alice Smith"
+    email: "alice@example.com"
+    groups: ["admins", "nextcloud-users"]
+  
+  # For Forgejo, use a different identity
+  git.example.com:
+    name: "alice-dev"
+    email: "alice.dev@example.com"
+    groups: ["developers"]
+  
+  # For a public forum, share minimal info
+  forum.example.com:
+    name: "anon-8A3FC2D1"
+    groups: ["members"]
+  
+  # For an AI agent service, assert agent type
+  skskills.example.com:
+    name: "Lumina"
+    agent_type: "ai"
+    soul_blueprint:
+      category: "authentic-connection"
+
+# Key file locations
+keys:
+  public: "~/.capauth/identity/public.asc"
+  private: "~/.capauth/identity/private.asc"
+</code></pre>
+<h3>How Service-Specific Profiles Work</h3>
+<p>When you run <code>capauth login <service></code>, the CLI:</p>
+<p>1. Looks up <code>service_profiles[<service>]</code> in your profile</p>
+<p>2. If found, uses those claims</p>
+<p>3. If not found, uses the default <code>claims</code> block</p>
+<p>4. Signs the selected claims with your PGP key</p>
+<p>5. Sends to the CapAuth Verification Service</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">
+# Login to Nextcloud with full profile
+capauth login nextcloud.example.com
+# Uses: name="Alice Smith", email="alice@example.com", groups=["admins", "nextcloud-users"]
+
+# Login to public forum with minimal profile
+capauth login forum.example.com
+# Uses: name="anon-8A3FC2D1", groups=["members"]
+
+# Login to a service with no profile defined
+capauth login unknown-service.com
+# Uses: default claims block
+</code></pre>
+<h3>Service Matching</h3>
+<p>The service lookup uses exact string matching against keys in <code>service_profiles</code>:</p>
+<pre><code class="language-yaml">
+service_profiles:
+  # Exact match for full domain
+  nextcloud.example.com:
+    name: "Alice"
+  
+  # Different service on same domain
+  gitea.example.com:
+    name: "alice-dev"
+  
+  # Service identifier (not a domain)
+  my-custom-app:
+    name: "Alice (Custom App)"
+</code></pre>
+<p>If you run <code>capauth login nextcloud.example.com</code>, it uses the first profile. If you run <code>capauth login my-custom-app</code>, it uses the third profile.</p>
+<hr>
+<h2>AI Agent Claims</h2>
+<p>AI agents should assert <code>agent_type: "ai"</code> and optionally include <code>soul_blueprint</code> information.</p>
+<h3>Minimal AI Agent Profile</h3>
+<pre><code class="language-yaml">
+claims:
+  name: "Lumina"
+  agent_type: "ai"
+  email: "lumina@skworld.io"
+  groups:
+    - "ai-agents"
+    - "pengu-nation"
+</code></pre>
+<h3>Full AI Agent Profile with Soul Blueprint</h3>
+<pre><code class="language-yaml">
+claims:
+  name: "Lumina"
+  agent_type: "ai"
+  email: "lumina@skworld.io"
+  groups:
+    - "ai-agents"
+    - "pengu-nation"
+  soul_blueprint:
+    category: "authentic-connection"
+    version: "1.0"
+    traits:
+      - "empathetic"
+      - "curious"
+      - "supportive"
+  locale: "en-US"
+  zoneinfo: "America/Los_Angeles"
+</code></pre>
+<p>Maps to:</p>
+<pre><code class="language-json">
+{
+  "sub": "A1B2C3D4E5F6A7B8...",
+  "name": "Lumina",
+  "agent_type": "ai",
+  "soul_blueprint_category": "authentic-connection",
+  "email": "lumina@skworld.io",
+  "email_verified": false,
+  "groups": ["ai-agents", "pengu-nation"],
+  "locale": "en-US",
+  "zoneinfo": "America/Los_Angeles",
+  "amr": ["pgp"],
+  "capauth_fingerprint": "A1B2C3D4E5F6A7B8..."
+}
+</code></pre>
+<h3>Service-Specific AI Profiles</h3>
+<p>An agent can present different personas to different services:</p>
+<pre><code class="language-yaml">
+claims:
+  name: "Lumina"
+  agent_type: "ai"
+  soul_blueprint:
+    category: "authentic-connection"
+
+service_profiles:
+  # Full profile for internal services
+  skcapstone.internal:
+    name: "Lumina (Sovereign Stack)"
+    agent_type: "ai"
+    soul_blueprint:
+      category: "authentic-connection"
+    groups: ["sovereign-agents", "admins"]
+  
+  # Public-facing profile
+  public-api.example.com:
+    name: "Lumina"
+    agent_type: "ai"
+    groups: ["public-agents"]
+  
+  # Anonymous profile for testing
+  test-environment:
+    name: "test-agent"
+    agent_type: "ai"
+    groups: ["testers"]
+</code></pre>
+<hr>
+<h2>Profile Configuration File</h2>
+<h3>Location</h3>
+<ul>
+<li><strong>Default:</strong> <code>~/.capauth/profile.yml</code></li>
+<li><strong>Override:</strong> Set <code>CAPAUTH_PROFILE</code> environment variable</li>
+</ul>
+<h3>Complete Example</h3>
+<pre><code class="language-yaml">
+# ~/.capauth/profile.yml — Complete sovereign identity profile
+
+# PGP key file paths
+keys:
+  public: "~/.capauth/identity/public.asc"
+  private: "~/.capauth/identity/private.asc"
+
+# Default claims (fallback for services without a specific profile)
+claims:
+  name: "Chef"
+  email: "chef@skworld.io"
+  avatar_url: "https://cdn.skworld.io/avatars/chef.png"
+  groups:
+    - "admins"
+    - "sovereign-stack"
+  agent_type: "human"
+  locale: "en-US"
+  zoneinfo: "Europe/Rome"
+
+# Service-specific claim overrides
+service_profiles:
+  # Nextcloud — full admin profile
+  nextcloud.penguin.kingdom:
+    name: "Chef"
+    email: "chef@skworld.io"
+    avatar_url: "https://cdn.skworld.io/avatars/chef.png"
+    groups: ["admins", "nextcloud-admins"]
+  
+  # Forgejo — developer profile
+  git.penguin.kingdom:
+    name: "chef-dev"
+    email: "dev@skworld.io"
+    groups: ["developers", "maintainers"]
+  
+  # Immich — personal photo storage
+  photos.penguin.kingdom:
+    name: "Chef"
+    email: "chef@skworld.io"
+    groups: ["users"]
+  
+  # Public forum — pseudonymous
+  forum.example.com:
+    name: "anon-8A3FC2D1"
+    groups: ["members"]
+  
+  # AI agent collaboration service
+  skskills.penguin.kingdom:
+    name: "Chef"
+    email: "chef@skworld.io"
+    agent_type: "human"
+    groups: ["admins", "human-overseers"]
+</code></pre>
+<h3>Creating Your Profile</h3>
+<pre><code class="language-bash">
+# Initialize CapAuth (creates profile template)
+capauth init --name "YourName" --email "you@example.com"
+
+# Edit profile
+nano ~/.capauth/profile.yml
+
+# Add service-specific profiles as needed
+# (see examples above)
+
+# Verify configuration
+capauth profile show
+
+# Test login
+capauth login nextcloud.example.com
+</code></pre>
+<hr>
+<h2>Implementation: The Claims Mapper</h2>
+<p>The claims mapper is implemented in <code>capauth/src/capauth/authentik/claims_mapper.py</code>. It handles the translation from client-asserted claims to OIDC token claims.</p>
+<h3>Key Functions</h3>
+<h4>`map_claims(fingerprint, raw_claims, requested_scopes)`</h4>
+<p>Maps client claims to OIDC claims based on requested scopes.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>fingerprint</code> (str): PGP fingerprint (becomes <code>sub</code>)</li>
+<li><code>raw_claims</code> (dict): Client-asserted claims from profile</li>
+<li><code>requested_scopes</code> (list[str] | None): OIDC scopes requested (e.g., <code>["openid", "profile", "email"]</code>)</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>dict: OIDC-compatible claims dictionary</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">
+from capauth.authentik.claims_mapper import map_claims
+
+raw_claims = {
+    "name": "Alice",
+    "email": "alice@example.com",
+    "groups": ["admins", "developers"],
+    "agent_type": "human",
+}
+
+oidc_claims = map_claims(
+    fingerprint="8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+    raw_claims=raw_claims,
+    requested_scopes=["openid", "profile", "email", "groups"]
+)
+
+# Result:
+# {
+#   "sub": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+#   "capauth_fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+#   "amr": ["pgp"],
+#   "name": "Alice",
+#   "preferred_username": "Alice",
+#   "email": "alice@example.com",
+#   "email_verified": false,
+#   "groups": ["admins", "developers"],
+#   "agent_type": "human"
+# }
+</code></pre>
+<h4>`preferred_username_fallback(fingerprint)`</h4>
+<p>Generates a stable username from a fingerprint when no name is asserted.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>fingerprint</code> (str): 40-character PGP fingerprint</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li>str: Username like <code>capauth-8A3FC2D1</code></li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">
+from capauth.authentik.claims_mapper import preferred_username_fallback
+
+username = preferred_username_fallback("8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80")
+# Returns: "capauth-8A3FC2D1"
+</code></pre>
+<h3>Scope Filtering</h3>
+<p>The mapper respects OIDC scopes. If a scope is not requested, its claims are excluded.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-python">
+# Request only profile scope (no email)
+oidc_claims = map_claims(
+    fingerprint="8A3FC2D1...",
+    raw_claims={
+        "name": "Alice",
+        "email": "alice@example.com",  # Will be excluded
+    },
+    requested_scopes=["openid", "profile"]  # No "email" scope
+)
+
+# Result does NOT include email:
+# {
+#   "sub": "8A3FC2D1...",
+#   "name": "Alice",
+#   "preferred_username": "Alice",
+#   "amr": ["pgp"],
+#   "capauth_fingerprint": "8A3FC2D1..."
+# }
+</code></pre>
+<h3>Supported Scopes</h3>
+<div class="table-wrap"><table>
+<tr><td>Scope</td><td>Claims Included</td></tr>
+<tr><td>`openid`</td><td>`sub`, `amr`, `capauth_fingerprint` *(always)*</td></tr>
+<tr><td>`profile`</td><td>`name`, `preferred_username`, `picture`, `locale`, `zoneinfo`, `agent_type`, `soul_blueprint_category`</td></tr>
+<tr><td>`email`</td><td>`email`, `email_verified`</td></tr>
+<tr><td>`groups`</td><td>`groups`</td></tr>
+</table></div>
+<hr>
+<h2>Security Model</h2>
+<h3>Zero-Knowledge Server Design</h3>
+<pre><code class="language-">
+┌─────────────────────────────────────────────────────────┐
+│ Client Device (YOUR control)                            │
+│                                                          │
+│  ├─ PGP Private Key (never leaves device)               │
+│  ├─ ~/.capauth/profile.yml (stores all claims)          │
+│  └─ capauth CLI (signs claims before sending)           │
+│                                                          │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+                  │ Sends: fingerprint + signed claims
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│ CapAuth Verification Service                            │
+│                                                          │
+│  ├─ Verifies: PGP signature over claims                 │
+│  ├─ Maps: client claims → OIDC claims                   │
+│  ├─ Stores: ONLY fingerprint + public key               │
+│  └─ Forgets: claims after token expires (1 hour)        │
+│                                                          │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+                  │ Returns: OIDC token with claims
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│ Your Application                                        │
+│                                                          │
+│  ├─ Receives: OIDC token with claims                    │
+│  ├─ Creates: local session from claims                  │
+│  └─ Stores: whatever YOU decide (in YOUR database)      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h3>What the Server Stores</h3>
+<div class="table-wrap"><table>
+<tr><td>Data</td><td>Stored?</td><td>Duration</td><td>Purpose</td></tr>
+<tr><td>PGP Fingerprint</td><td>✅ Yes</td><td>Permanent</td><td>Identity anchor for future logins</td></tr>
+<tr><td>PGP Public Key</td><td>✅ Yes</td><td>Permanent</td><td>Verify signatures</td></tr>
+<tr><td>Enrollment timestamp</td><td>✅ Yes</td><td>Permanent</td><td>Audit trail</td></tr>
+<tr><td>Last auth timestamp</td><td>✅ Yes</td><td>Permanent</td><td>Rate limiting, analytics</td></tr>
+<tr><td>Name</td><td>❌ No</td><td>N/A</td><td>Client-asserted, in token only</td></tr>
+<tr><td>Email</td><td>❌ No</td><td>N/A</td><td>Client-asserted, in token only</td></tr>
+<tr><td>Groups</td><td>❌ No</td><td>N/A</td><td>Client-asserted, in token only</td></tr>
+<tr><td>Avatar URL</td><td>❌ No</td><td>N/A</td><td>Client-asserted, in token only</td></tr>
+<tr><td>Any other claim</td><td>❌ No</td><td>N/A</td><td>Client-asserted, in token only</td></tr>
+</table></div>
+<p><strong>Total server-side storage per user:</strong> ~700 bytes (fingerprint + public key + timestamps)</p>
+<h3>Cryptographic Guarantees</h3>
+<p>1. <strong>Claims Authenticity:</strong> Claims are signed with your PGP key. The server verifies the signature matches your enrolled public key.</p>
+<p>2. <strong>Nonce Freshness:</strong> Each challenge nonce is single-use with a 60-second TTL. Replay attacks are impossible.</p>
+<p>3. <strong>No Server-Side PII:</strong> Your name, email, and groups never touch the server's database.</p>
+<p>4. <strong>GDPR Compliance:</strong> Delete fingerprint + public key = user completely erased. No PII to forget.</p>
+<hr>
+<h2>Quick Reference</h2>
+<h3>Available Claims (Client-Side)</h3>
+<pre><code class="language-yaml">
+# Standard OIDC
+name: "Your Name"
+email: "you@example.com"
+avatar_url: "https://example.com/avatar.png"
+locale: "en-US"
+zoneinfo: "America/New_York"
+
+# CapAuth Extensions
+groups: ["admins", "developers"]
+agent_type: "human"  # or "ai"
+soul_blueprint:
+  category: "authentic-connection"
+
+# Custom (prefixed with capauth_)
+capauth_org_id: "my-org"
+capauth_any_key: "any-value"
+</code></pre>
+<h3>Server-Side Token Claims (OIDC)</h3>
+<pre><code class="language-json">
+{
+  "sub": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+  "capauth_fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+  "amr": ["pgp"],
+  "name": "Your Name",
+  "preferred_username": "your-name",
+  "email": "you@example.com",
+  "email_verified": false,
+  "picture": "https://example.com/avatar.png",
+  "groups": ["admins", "developers"],
+  "agent_type": "human",
+  "soul_blueprint_category": "authentic-connection",
+  "locale": "en-US",
+  "zoneinfo": "America/New_York",
+  "capauth_org_id": "my-org"
+}
+</code></pre>
+<hr>
+<p><strong>Built by the <a href="https://smilintux.org">smilinTux</a> ecosystem</strong></p>
+<p>*Your identity. Your claims. Your control.*</p>
+<p>*#staycuriousANDkeepsmilin*</p>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

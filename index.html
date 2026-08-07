@@ -1,40 +1,610 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>capauth — redirecting to capauth.io</title>
-<meta name="description" content="capauth.skworld.io is an alias for the capauth.io site. Redirecting…">
-<!-- Canonical points to the apex FQDN: it stays the primary, indexed site (no duplicate content) -->
-<link rel="canonical" href="https://capauth.io/">
-<meta http-equiv="refresh" content="0; url=https://capauth.io/">
-<meta name="robots" content="noindex, follow">
-<meta property="og:type" content="website">
-<meta property="og:title" content="capauth · SKWorld">
-<meta property="og:description" content="The capauth project — part of the SKWorld sovereign AI ecosystem.">
-<meta property="og:url" content="https://capauth.io/">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐧</text></svg>">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:radial-gradient(ellipse at top,#11131f 0%,#08080f 60%);color:#e0e0e0;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
-.box{padding:2rem}
-.icon{font-size:3.5rem;margin-bottom:1rem}
-h1{font-size:1.6rem;font-weight:700;color:#ffd700;margin-bottom:.5rem}
-p{color:rgba(255,255,255,.7);margin-bottom:1.2rem}
-a{color:#67e8f9;text-decoration:none;border:1px solid rgba(103,232,249,.35);padding:.6rem 1.3rem;border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.9rem;transition:all .3s}
-a:hover{border-color:#67e8f9;color:#fff}
-.brand{margin-top:2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:rgba(255,255,255,.35)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapAuth — Sovereign Identity Protocol</title>
+    <meta name="description" content="Challenge-response identity verification with PGP keys. No passwords. No servers. No cloud. Your key is your identity. Open source under GPL-3.0.">
+    <link rel="canonical" href="https://capauth.skworld.io/">
+    <meta property="og:title" content="CapAuth — Sovereign Identity Protocol">
+    <meta property="og:description" content="Challenge-response identity verification with PGP keys. No passwords. No servers. No cloud. Your key is your identity.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://capauth.skworld.io/">
+    <meta property="og:site_name" content="CapAuth">
+    <meta property="og:locale" content="en_US">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@smilinTux">
+    <meta name="twitter:title" content="CapAuth — Sovereign Identity Protocol">
+    <meta name="twitter:description" content="Challenge-response identity verification with PGP keys. No passwords. No servers. No cloud.">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="keywords" content="identity protocol, PGP authentication, sovereign identity, decentralized identity, DID, zero trust, challenge response, P2P identity, open source authentication">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CapAuth",
+      "description": "Sovereign identity protocol using PGP-based challenge-response authentication. No passwords, no servers, no cloud dependency.",
+      "url": "https://capauth.skworld.io",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Linux, macOS",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+      "license": "https://www.gnu.org/licenses/gpl-3.0.en.html",
+      "codeRepository": "https://github.com/smilinTux/capauth",
+      "programmingLanguage": "Python",
+      "isPartOf": {"@type": "SoftwareApplication", "name": "SKCapstone", "url": "https://skcapstone.io"}
+    }
+    </script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-deep: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0d1117;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #3b82f6;
+            --accent-glow: #60a5fa;
+            --accent-subtle: #1e3a5f;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--accent-glow); text-decoration: none; transition: color .2s; }
+        a:hover { color: #93c5fd; }
+
+        .container { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* ── Nav ── */
+        .nav {
+            border-bottom: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .nav-inner {
+            max-width: 68rem;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
+            padding: 0 1.5rem;
+        }
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+        .nav-logo span { color: var(--accent); }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color .2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-badge {
+            background: var(--accent);
+            color: #fff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent);
+            color: var(--accent-glow);
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 .accent { color: var(--accent-glow); }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 640px;
+            margin: 0 auto 2rem;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: #2563eb; color: #fff; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent-glow); }
+
+        /* ── Protocol Flow ── */
+        .flow-section { padding: 4rem 0; }
+        .flow-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .flow-section .subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+        }
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 56rem;
+            margin: 0 auto;
+        }
+        .flow-step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .flow-step .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--accent-subtle);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            font-weight: 700;
+            color: var(--accent-glow);
+            font-family: var(--font-mono);
+            margin-bottom: 1rem;
+        }
+        .flow-step h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .flow-step p {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* ── Code Block ── */
+        .code-section { padding: 3rem 0; }
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 48rem;
+            margin: 2rem auto;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .code-block .comment { color: #6b7280; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #34d399; }
+        .code-block .func { color: #60a5fa; }
+        .code-block .const { color: #f59e0b; }
+
+        /* ── Features Grid ── */
+        .features { padding: 4rem 0; }
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: border-color .2s;
+        }
+        .feature-card:hover { border-color: var(--accent); }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* ── Comparison ── */
+        .comparison { padding: 4rem 0; }
+        .comparison h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        .compare-table {
+            max-width: 48rem;
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .compare-table th, .compare-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .compare-table th {
+            font-weight: 600;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .compare-table td { font-size: 0.9rem; }
+        .compare-table .highlight { color: var(--accent-glow); font-weight: 600; }
+        .compare-table .dim { color: var(--text-dim); }
+
+        /* ── Footer ── */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .footer h4 {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        .footer a {
+            display: block;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+        .footer a:hover { color: var(--text); }
+        .footer-bottom {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; }
+            .nav-links { display: none; }
+            .flow-steps { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
-<div class="box">
-<div class="icon">🐧</div>
-<h1>Redirecting to capauth.io…</h1>
-<p>This is the SKWorld subdomain alias for <strong>capauth</strong>.</p>
-<a href="https://capauth.io/">Continue to capauth.io →</a>
-<div style="margin-top:1rem"><a href="/docs.html" style="font-size:.8rem;">📚 Docs</a></div>
-<div class="brand">🐧 part of the SKWorld ecosystem · <a style="border:none;padding:0;font-size:.8rem;" href="https://skworld.io">skworld.io</a></div>
-</div>
-<script>location.replace("https://capauth.io/"+location.pathname.replace(/^\//,'')+location.search+location.hash);</script>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="#protocol">Protocol</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#comparison">Compare</a></li>
+      <li><a href="/docs.html">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth" class="nav-badge">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">PROTOCOL v0.1.0 · GPL-3.0</div>
+    <h1>Identity Without <span class="accent">Permission</span></h1>
+    <p>Challenge-response authentication with PGP keys. No passwords. No servers. No cloud. No trust required. Your key <em>is</em> your identity.</p>
+    <p style="font-size:0.95rem; color:var(--accent-glow); margin-top:-1rem; margin-bottom:1.75rem; font-family:var(--font-mono);">Your keys never leave your machine. No cloud. No lock-in. Ever.</p>
+    <div class="hero-buttons">
+      <a href="https://github.com/smilinTux/capauth" class="btn btn-primary">View Source</a>
+      <a href="#protocol" class="btn btn-outline">How It Works</a>
+    </div>
+  </div>
+</section>
+
+<!-- Protocol Flow -->
+<section id="protocol" class="flow-section">
+  <div class="container">
+    <h2>The Protocol</h2>
+    <p class="subtitle">Four steps. No intermediary. Cryptographic proof of identity.</p>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <h3>Generate Identity</h3>
+        <p>Create a PGP keypair. The public key becomes your DID (Decentralized Identifier).</p>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <h3>Challenge</h3>
+        <p>The verifier sends a random nonce encrypted with your public key.</p>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <h3>Respond</h3>
+        <p>You decrypt the nonce with your private key and sign the response.</p>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <h3>Verified ✓</h3>
+        <p>The verifier confirms the signature. Identity proven. Zero trust required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Code Example -->
+<section class="code-section">
+  <div class="container">
+    <div class="code-block">
+<pre><span class="comment"># CapAuth — Sovereign Identity in 4 Lines</span>
+<span class="keyword">from</span> capauth <span class="keyword">import</span> <span class="func">SovereignProfile</span>, <span class="func">verify_peer</span>
+
+<span class="comment"># Create your sovereign identity</span>
+profile = <span class="func">SovereignProfile</span>(<span class="string">"lumina"</span>, key_backend=<span class="string">"pgpy"</span>)
+profile.<span class="func">generate_keys</span>()
+
+<span class="comment"># Verify a peer — no server, no cloud, no middleman</span>
+result = <span class="func">verify_peer</span>(peer_pubkey=<span class="string">"/path/to/peer.pub"</span>)
+<span class="keyword">assert</span> result.verified == <span class="const">True</span>
+<span class="keyword">print</span>(<span class="string">f"Identity confirmed: <span class="const">{result.did}</span>"</span>)</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="features">
+  <div class="container">
+    <h2>Built for Sovereignty</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>PGP-Native Identity</h3>
+        <p>Your PGP keypair is your identity. No usernames, no emails, no phone numbers. Just math.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Zero Trust Architecture</h3>
+        <p>No central authority. No certificate authority. No server to hack. Peers verify each other directly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Agent Delegation</h3>
+        <p>Agents can carry delegated credentials. Your AI acts on your behalf with cryptographic authorization.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Mesh Networking</h3>
+        <p>Discover and verify peers via mDNS, Syncthing, or any transport. Protocol-agnostic by design.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚖️</div>
+        <h3>PMA Membership</h3>
+        <p>Private Membership Association support built in. Prove membership without revealing identity.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Lightweight</h3>
+        <p>Pure Python. PGPy default backend, optional GnuPG. No database. No daemon. Just a library.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section id="comparison" class="comparison">
+  <div class="container">
+    <h2>How CapAuth Compares</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>OAuth 2.0</th>
+          <th>WebAuthn/FIDO2</th>
+          <th class="highlight">CapAuth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Server Required</td>
+          <td class="dim">Yes</td>
+          <td class="dim">Yes</td>
+          <td class="highlight">No</td>
+        </tr>
+        <tr>
+          <td>Cloud Dependency</td>
+          <td class="dim">Yes</td>
+          <td class="dim">Often</td>
+          <td class="highlight">Never</td>
+        </tr>
+        <tr>
+          <td>Works Offline</td>
+          <td class="dim">No</td>
+          <td class="dim">Partial</td>
+          <td class="highlight">Full P2P</td>
+        </tr>
+        <tr>
+          <td>AI Delegation</td>
+          <td class="dim">No</td>
+          <td class="dim">No</td>
+          <td class="highlight">Built-in</td>
+        </tr>
+        <tr>
+          <td>Self-Sovereign</td>
+          <td class="dim">No</td>
+          <td class="dim">Partial</td>
+          <td class="highlight">100%</td>
+        </tr>
+        <tr>
+          <td>Open Source</td>
+          <td class="dim">Spec only</td>
+          <td class="dim">Spec only</td>
+          <td class="highlight">GPL-3.0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Own the Full Vertical -->
+<section style="padding:4rem 0; background:linear-gradient(135deg,rgba(59,130,246,0.06) 0%,rgba(15,23,42,0) 100%); border-top:1px solid var(--border);">
+  <div class="container" style="max-width:52rem;">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-glow); text-transform:uppercase; letter-spacing:0.1em;">🐧 Own the Full Vertical</span>
+    </div>
+    <blockquote style="border-left:3px solid var(--accent); padding-left:1.5rem; margin-bottom:2rem; color:var(--text-dim); font-size:1.05rem; line-height:1.8;">
+      The modern stack is rented. Your data lives on someone else's disk, behind someone else's key. We rebuilt it from the ground up — silicon, OS, identity, data, models, security, comms, apps, soul. <strong style="color:var(--text);">Every layer yours.</strong>
+    </blockquote>
+    <p style="text-align:center; font-size:1.05rem; margin-bottom:2rem;">
+      <strong style="color:var(--accent-glow);">CapAuth is your Identity layer</strong> of the sovereign vertical — cryptographic, serverless, no OAuth landlord to answer to.
+    </p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.75rem; margin-bottom:2rem;">
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Silicon</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">OS</div>
+      <div style="background:var(--accent-subtle); border:1px solid var(--accent); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.85rem; font-weight:700; color:var(--accent-glow);">Identity ← you are here</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Security</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Data</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Models</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Comms</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Apps</div>
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.75rem 1rem; text-align:center; font-size:0.8rem; color:var(--text-dim);">Soul</div>
+    </div>
+    <p style="text-align:center; color:var(--text-dim); font-size:0.9rem;">
+      <a href="https://skworld.io" style="color:var(--accent-glow); font-weight:600;">See the whole vertical at skworld.io →</a>
+    </p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <h4>CapAuth</h4>
+        <a href="https://github.com/smilinTux/capauth">Source Code</a>
+        <a href="https://github.com/smilinTux/capauth/issues">Issues</a>
+        <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL-3.0 License</a>
+      </div>
+      <div>
+        <h4>Layers You Own</h4>
+        <a href="https://skworld.io">SKWorld — the full vertical</a>
+        <a href="https://skcapstone.io">SKCapstone — the Framework</a>
+        <a href="https://skmemory.io">SKMemory — your Data layer</a>
+        <a href="https://sksecurity.io">SKSecurity — your Security layer</a>
+      </div>
+      <div>
+        <h4>More Layers</h4>
+        <a href="https://skcomm.io">SKComm — your Comms layer</a>
+        <a href="https://skaid.io">SKAid — your Agent layer</a>
+        <a href="https://ailife.family">AI LIFE</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Part of the <a href="https://skworld.io">SKWorld</a> sovereign vertical · Built by <a href="https://github.com/smilinTux">smilinTux</a> · GPL-3.0
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>

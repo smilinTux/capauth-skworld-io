@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Blueprint — CapAuth Docs</title>
+    <meta name="description" content="Integration Blueprint documentation for CapAuth">
+    <link rel="canonical" href="https://capauth.skworld.io/docs/integration/">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #0f172a; --bg-card: #1e293b; --bg-code: #0d1117;
+            --border: #334155; --text: #e2e8f0; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: #60a5fa;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        body { font-family: var(--font-body); background: var(--bg-deep); color: var(--text); line-height: 1.7; }
+        a { color: var(--accent-glow); text-decoration: none; }
+        a:hover { color: var(--text); }
+        .nav { position: sticky; top: 0; z-index: 100; background: rgba(15,23,42,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+        .nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { list-style: none; display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: var(--text-dim); font-size: .9rem; font-weight: 500; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-glow); }
+        .layout { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 3rem; padding: 2rem; }
+        .sidebar { position: sticky; top: 80px; align-self: start; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin-bottom: .5rem; }
+        .sidebar a { color: var(--text-dim); font-size: .9rem; display: block; padding: .4rem .8rem; border-radius: 6px; }
+        .sidebar a:hover, .sidebar a.active { color: var(--accent-glow); background: rgba(59,130,246,.1); }
+        .content { min-width: 0; }
+        .content h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 1.5rem; }
+        .content h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .content h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+        .content h4 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .5rem; }
+        .content p { margin-bottom: 1rem; color: var(--text); }
+        .content ul, .content ol { margin: 0 0 1rem 1.5rem; }
+        .content li { margin-bottom: .4rem; }
+        .content pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+        .content code { font-family: var(--font-mono); font-size: .85rem; }
+        .content p code, .content li code { background: var(--bg-code); padding: .15rem .4rem; border-radius: 4px; font-size: .85rem; }
+        .content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+        .content strong { color: var(--text); font-weight: 600; }
+        .table-wrap { overflow-x: auto; margin: 1rem 0; }
+        .content table { border-collapse: collapse; width: 100%; }
+        .content td { padding: .5rem .75rem; border: 1px solid var(--border); font-size: .9rem; }
+        .content tr:nth-child(odd) { background: rgba(30,41,59,.5); }
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-dim); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 4rem; }
+        @media (max-width: 768px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Cap<span>Auth</span></a>
+    <ul class="nav-links">
+      <li><a href="/docs/">Docs</a></li>
+      <li><a href="https://github.com/smilinTux/capauth">GitHub →</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="layout">
+    <aside class="sidebar">
+        <ul>
+            <li><a href="/docs/protocol/" >Protocol</a></li><li><a href="/docs/architecture/" >Architecture</a></li><li><a href="/docs/crypto/" >Crypto Spec</a></li><li><a href="/docs/claims/" >Claims System</a></li><li><a href="/docs/zk-profiles/" >Zero-Knowledge Profiles</a></li><li><a href="/docs/integration/" class="active">Integration Blueprint</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>CapAuth Integration Blueprint</h1>
+<h3>Drop-In Passwordless PGP Authentication for Any Application</h3>
+<p><strong>Version:</strong> 1.0.0 | <strong>Date:</strong> 2026-02-24 | <strong>License:</strong> GPL-3.0-or-later</p>
+<hr>
+<h2>Quick Copy — Get Started Now</h2>
+<p><strong>One-liner installations for every platform:</strong></p>
+<pre><code class="language-bash">
+# CapAuth Verification Service (required)
+pip install capauth[service] && capauth-service --port 8420
+
+# Python/FastAPI
+pip install capauth httpx && # Add routes from FastAPI section below
+
+# Python/Flask
+pip install capauth requests flask && # Add blueprint from Flask section below
+
+# Python/Django
+pip install capauth requests && # Add backend from Django section below
+
+# Node/Express
+npm install express express-session && # Add routes from Express section below
+
+# Nextcloud App
+cp -r nextcloud-capauth /path/to/nextcloud/apps/capauth && sudo -u www-data php occ app:enable capauth
+
+# Forgejo/Gitea
+# Add OIDC provider config in app.ini (see Forgejo section)
+
+# Immich
+# Set OAUTH_* env vars (see Immich section)
+
+# WordPress Plugin
+# Upload capauth-wp.zip to Plugins &gt; Add New
+
+# Flutter/Mobile
+# Add CapAuthClient class from Flutter section to your project
+
+# CLI/Agent Tools
+pip install capauth && # Use capauth_login() function from CLI section
+</code></pre>
+<hr>
+<h2>What Is This?</h2>
+<p>This is the <strong>complete developer guide</strong> for adding CapAuth passwordless authentication to any application — web app, mobile app, CLI tool, self-hosted service, or AI agent framework. Whether you're vibe-coding a weekend project or architecting enterprise infrastructure, this blueprint gives you everything you need.</p>
+<p><strong>One sentence:</strong> Your users' PGP key IS their login. No passwords. No server-side PII. No OAuth dance. Just cryptographic proof of identity.</p>
+<hr>
+<h2>Table of Contents</h2>
+<p>1. <a href="#architecture-overview">Architecture Overview</a></p>
+<p>2. <a href="#how-it-works">How It Works (30-Second Version)</a></p>
+<p>3. <a href="#system-architecture-diagrams">System Architecture Diagrams</a></p>
+<p>4. <a href="#the-capauth-verification-service">The CapAuth Verification Service</a></p>
+<p>5. <a href="#integration-patterns">Integration Patterns</a></p>
+<ul>
+<li><a href="#pattern-a-oidc-compatible-apps">Pattern A: OIDC-Compatible Apps</a></li>
+<li><a href="#pattern-b-custom-web-apps">Pattern B: Custom Web Apps</a></li>
+<li><a href="#pattern-c-cli--agent-tools">Pattern C: CLI / Agent Tools</a></li>
+<li><a href="#pattern-d-mobile-apps">Pattern D: Mobile Apps</a></li>
+</ul>
+<p>6. <a href="#platform-specific-guides">Platform-Specific Guides</a></p>
+<ul>
+<li><a href="#nextcloud">Nextcloud</a></li>
+<li><a href="#forgejo--gitea">Forgejo / Gitea</a></li>
+<li><a href="#immich">Immich</a></li>
+<li><a href="#fastapi-python">FastAPI (Python)</a></li>
+<li><a href="#expressjs-node">Express.js (Node)</a></li>
+<li><a href="#flask-python">Flask (Python)</a></li>
+<li><a href="#django">Django</a></li>
+<li><a href="#wordpress">WordPress</a></li>
+<li><a href="#flutter--mobile">Flutter / Mobile</a></li>
+<li><a href="#skskills--openclaw">SKSkills / OpenClaw</a></li>
+</ul>
+<p>7. <a href="#client-side-implementation">Client-Side Implementation</a></p>
+<p>8. <a href="#deployment-guide">Deployment Guide</a></p>
+<p>9. <a href="#security-model">Security Model</a></p>
+<p>10. <a href="#troubleshooting">Troubleshooting</a></p>
+<p>11. <a href="#api-reference">API Reference</a></p>
+<hr>
+<h2>Architecture Overview</h2>
+<pre><code class="language-mermaid">
+graph TB
+    subgraph "Client Side (User's Device)"
+        PGP["🔑 PGP Private Key&lt;br/&gt;&lt;i&gt;Never leaves device&lt;/i&gt;"]
+        PROF["📋 Local Profile&lt;br/&gt;&lt;i&gt;~/.capauth/profile.yml&lt;/i&gt;"]
+        CLI["⌨️ capauth CLI"]
+        EXT["🧩 Browser Extension"]
+        MOB["📱 Mobile App"]
+    end
+
+    subgraph "CapAuth Verification Service"
+        FAST["⚡ FastAPI Server&lt;br/&gt;&lt;i&gt;capauth-service :8420&lt;/i&gt;"]
+        KS["🗄️ SQLite KeyStore&lt;br/&gt;&lt;i&gt;Fingerprints only&lt;/i&gt;"]
+        OIDC["📜 OIDC Discovery&lt;br/&gt;&lt;i&gt;/.well-known/openid-configuration&lt;/i&gt;"]
+    end
+
+    subgraph "Your Applications"
+        NC["☁️ Nextcloud"]
+        FG["🔀 Forgejo"]
+        IM["📸 Immich"]
+        CUSTOM["🛠️ Your App"]
+        AGENT["🤖 AI Agent"]
+    end
+
+    CLI --&gt;|"challenge/verify"| FAST
+    EXT --&gt;|"challenge/verify"| FAST
+    MOB --&gt;|"challenge/verify"| FAST
+
+    NC --&gt;|"proxy auth"| FAST
+    FG --&gt;|"OIDC flow"| FAST
+    IM --&gt;|"OIDC flow"| FAST
+    CUSTOM --&gt;|"REST API"| FAST
+    AGENT --&gt;|"challenge/verify"| FAST
+
+    FAST --&gt; KS
+    FAST --&gt; OIDC
+
+    PGP -.-&gt;|"signs challenges"| CLI
+    PGP -.-&gt;|"signs challenges"| EXT
+    PGP -.-&gt;|"signs challenges"| MOB
+    PROF -.-&gt;|"provides claims"| CLI
+    PROF -.-&gt;|"provides claims"| EXT
+
+    style PGP fill:#1a1a2e,stroke:#e94560,color:#fff
+    style FAST fill:#0f3460,stroke:#16213e,color:#fff
+    style KS fill:#16213e,stroke:#0f3460,color:#fff
+</code></pre>
+<hr>
+<h2>How It Works</h2>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant U as 👤 User/Agent
+    participant A as 🛠️ Your App
+    participant C as ⚡ CapAuth Service
+    participant K as 🔑 PGP Key (local)
+
+    U-&gt;&gt;A: Click "Login with CapAuth"
+    A-&gt;&gt;C: POST /capauth/v1/challenge&lt;br/&gt;{fingerprint, client_nonce}
+    C--&gt;&gt;A: {nonce, expires, server_signature}
+    A--&gt;&gt;U: "Sign this nonce"
+
+    U-&gt;&gt;K: Sign nonce with private key
+    K--&gt;&gt;U: nonce_signature
+
+    U-&gt;&gt;A: Submit signed response
+    A-&gt;&gt;C: POST /capauth/v1/verify&lt;br/&gt;{fingerprint, nonce, nonce_signature,&lt;br/&gt;claims, claims_signature}
+    C--&gt;&gt;A: {authenticated: true,&lt;br/&gt;oidc_claims, access_token}
+    A--&gt;&gt;U: ✅ Logged in!
+
+    Note over C: Server stores ONLY&lt;br/&gt;the fingerprint.&lt;br/&gt;No name. No email.&lt;br/&gt;No password. Nothing.
+</code></pre>
+<h3>The 4-Step Flow</h3>
+<div class="table-wrap"><table>
+<tr><td>Step</td><td>Who</td><td>What</td><td>How</td></tr>
+<tr><td>**1. Challenge**</td><td>App → Service</td><td>"This fingerprint wants to log in"</td><td>`POST /capauth/v1/challenge`</td></tr>
+<tr><td>**2. Sign**</td><td>User (local)</td><td>Signs the nonce with PGP private key</td><td>`gpg --detach-sign` or browser extension</td></tr>
+<tr><td>**3. Verify**</td><td>App → Service</td><td>"Here's the signed nonce + optional claims"</td><td>`POST /capauth/v1/verify`</td></tr>
+<tr><td>**4. Session**</td><td>App</td><td>Creates local session from OIDC claims</td><td>Standard session management</td></tr>
+</table></div>
+<hr>
+<h2>System Architecture Diagrams</h2>
+<h3>Full Protocol Flow</h3>
+<pre><code class="language-mermaid">
+flowchart LR
+    subgraph Client["Client Device"]
+        direction TB
+        KEY["🔑 PGP Keypair"]
+        PROFILE["📋 Profile YAML"]
+        SIGNER["Signing Engine"]
+    end
+
+    subgraph Service["CapAuth Verification Service"]
+        direction TB
+        CHALLENGE["Challenge&lt;br/&gt;Endpoint"]
+        VERIFY["Verify&lt;br/&gt;Endpoint"]
+        NONCE["Nonce Store&lt;br/&gt;(60s TTL)"]
+        KEYS["Key Store&lt;br/&gt;(SQLite)"]
+        CLAIMS["Claims&lt;br/&gt;Mapper"]
+        DISCOVERY["OIDC&lt;br/&gt;Discovery"]
+    end
+
+    subgraph Apps["Consuming Applications"]
+        direction TB
+        APP1["Nextcloud"]
+        APP2["Forgejo"]
+        APP3["Immich"]
+        APP4["Custom App"]
+    end
+
+    Client --&gt;|"1. Request Challenge"| CHALLENGE
+    CHALLENGE --&gt;|"2. Issue Nonce"| NONCE
+    CHALLENGE --&gt;|"3. Return Challenge"| Client
+    Client --&gt;|"4. Sign + Submit"| VERIFY
+    VERIFY --&gt;|"5. Check Nonce"| NONCE
+    VERIFY --&gt;|"6. Verify Signature"| KEYS
+    VERIFY --&gt;|"7. Map Claims"| CLAIMS
+    CLAIMS --&gt;|"8. OIDC Token"| Apps
+
+    Apps --&gt;|"Discover"| DISCOVERY
+</code></pre>
+<h3>Zero-Knowledge Data Flow</h3>
+<pre><code class="language-mermaid">
+flowchart TB
+    subgraph Local["🏠 Lives On YOUR Device"]
+        NAME["Your Name"]
+        EMAIL["Your Email"]
+        AVATAR["Your Avatar"]
+        GROUPS["Your Groups"]
+        PRIVKEY["Your Private Key"]
+    end
+
+    subgraph Transit["🔒 Flows Through Service (Never Stored)"]
+        CLAIMFLOW["Signed Claims Bundle&lt;br/&gt;&lt;i&gt;Cryptographically bound to this session&lt;/i&gt;"]
+        TOKEN["OIDC Token&lt;br/&gt;&lt;i&gt;Contains claims, expires in 1hr&lt;/i&gt;"]
+    end
+
+    subgraph Server["🗄️ Stored On Server"]
+        FP["Fingerprint (40 chars)"]
+        PUBKEY["Public Key (for verification)"]
+        ENROLLED["Enrollment timestamp"]
+        LASTAUTH["Last auth timestamp"]
+    end
+
+    NAME --&gt; CLAIMFLOW
+    EMAIL --&gt; CLAIMFLOW
+    AVATAR --&gt; CLAIMFLOW
+    GROUPS --&gt; CLAIMFLOW
+    CLAIMFLOW --&gt; TOKEN
+    TOKEN -.-&gt;|"Expires"| GONE["💨 Gone"]
+
+    style Local fill:#1b4332,stroke:#2d6a4f,color:#fff
+    style Transit fill:#003049,stroke:#023e8a,color:#fff
+    style Server fill:#370617,stroke:#6a040f,color:#fff
+    style GONE fill:#495057,stroke:#6c757d,color:#fff
+</code></pre>
+<h3>Multi-App Single Service</h3>
+<pre><code class="language-mermaid">
+graph TB
+    subgraph Users["Users & Agents"]
+        H1["👤 Human (Browser)"]
+        H2["👤 Human (CLI)"]
+        A1["🤖 AI Agent"]
+        M1["📱 Mobile User"]
+    end
+
+    CS["⚡ CapAuth Verification Service&lt;br/&gt;&lt;i&gt;Single instance serves ALL apps&lt;/i&gt;&lt;br/&gt;:8420"]
+
+    subgraph Apps["Your Infrastructure"]
+        NC["☁️ Nextcloud&lt;br/&gt;&lt;i&gt;nextcloud-capauth app&lt;/i&gt;"]
+        FG["🔀 Forgejo&lt;br/&gt;&lt;i&gt;OIDC provider config&lt;/i&gt;"]
+        IM["📸 Immich&lt;br/&gt;&lt;i&gt;OIDC provider config&lt;/i&gt;"]
+        SK["💬 SKChat&lt;br/&gt;&lt;i&gt;CapAuth identity bridge&lt;/i&gt;"]
+        WP["📝 WordPress&lt;br/&gt;&lt;i&gt;capauth-wp plugin&lt;/i&gt;"]
+        MY["🛠️ Your Custom App&lt;br/&gt;&lt;i&gt;2 API calls&lt;/i&gt;"]
+    end
+
+    H1 --&gt; CS
+    H2 --&gt; CS
+    A1 --&gt; CS
+    M1 --&gt; CS
+
+    CS --&gt; NC
+    CS --&gt; FG
+    CS --&gt; IM
+    CS --&gt; SK
+    CS --&gt; WP
+    CS --&gt; MY
+
+    style CS fill:#e94560,stroke:#1a1a2e,color:#fff,stroke-width:3px
+</code></pre>
+<hr>
+<h2>The CapAuth Verification Service</h2>
+<p>The service is a standalone FastAPI application. One instance serves your entire infrastructure.</p>
+<h3>Quick Start</h3>
+<pre><code class="language-bash">
+# Install
+cd capauth && pip install -e ".[service]"
+
+# Configure
+export CAPAUTH_SERVICE_ID="auth.yourdomain.com"
+export CAPAUTH_ADMIN_TOKEN="your-secret-admin-token"
+export CAPAUTH_BASE_URL="https://auth.yourdomain.com"
+
+# Run
+capauth-service --host 0.0.0.0 --port 8420
+
+# Verify
+curl http://localhost:8420/capauth/v1/status
+</code></pre>
+<h3>Environment Variables</h3>
+<div class="table-wrap"><table>
+<tr><td>Variable</td><td>Default</td><td>Description</td></tr>
+<tr><td>`CAPAUTH_SERVICE_ID`</td><td>`capauth.local`</td><td>Service identifier in challenges</td></tr>
+<tr><td>`CAPAUTH_BASE_URL`</td><td>`https://{SERVICE_ID}`</td><td>Public URL for OIDC discovery</td></tr>
+<tr><td>`CAPAUTH_DB_PATH`</td><td>`~/.capauth/service/keys.db`</td><td>SQLite database path</td></tr>
+<tr><td>`CAPAUTH_ADMIN_TOKEN`</td><td>*(empty)*</td><td>Bearer token for admin endpoints</td></tr>
+<tr><td>`CAPAUTH_REQUIRE_APPROVAL`</td><td>`false`</td><td>Require admin key approval</td></tr>
+<tr><td>`CAPAUTH_SERVER_KEY_ARMOR`</td><td>*(empty)*</td><td>Server's PGP private key (for signing challenges)</td></tr>
+<tr><td>`CAPAUTH_SERVER_KEY_PASSPHRASE`</td><td>*(empty)*</td><td>Server key passphrase</td></tr>
+</table></div>
+<h3>Endpoints</h3>
+<div class="table-wrap"><table>
+<tr><td>Method</td><td>Path</td><td>Auth</td><td>Description</td></tr>
+<tr><td>`POST`</td><td>`/capauth/v1/challenge`</td><td>Public</td><td>Request a challenge nonce</td></tr>
+<tr><td>`POST`</td><td>`/capauth/v1/verify`</td><td>Public</td><td>Submit signed response</td></tr>
+<tr><td>`GET`</td><td>`/capauth/v1/status`</td><td>Public</td><td>Health check</td></tr>
+<tr><td>`GET`</td><td>`/capauth/v1/keys`</td><td>Admin</td><td>List enrolled keys</td></tr>
+<tr><td>`POST`</td><td>`/capauth/v1/keys/approve`</td><td>Admin</td><td>Approve a pending key</td></tr>
+<tr><td>`POST`</td><td>`/capauth/v1/keys/revoke`</td><td>Admin</td><td>Revoke an enrolled key</td></tr>
+<tr><td>`GET`</td><td>`/.well-known/openid-configuration`</td><td>Public</td><td>OIDC discovery document</td></tr>
+</table></div>
+<hr>
+<h2>Integration Patterns</h2>
+<h3>Pattern A: OIDC-Compatible Apps</h3>
+<p>For apps that already support "Login with OIDC" (Forgejo, Immich, Grafana, etc.).</p>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant U as User
+    participant A as App (Forgejo/Immich)
+    participant C as CapAuth Service
+
+    U-&gt;&gt;A: Click "Login with CapAuth"
+    A-&gt;&gt;C: OIDC Authorization Request
+    C--&gt;&gt;U: Challenge Page
+    U-&gt;&gt;U: Sign with PGP key
+    U-&gt;&gt;C: Signed Response
+    C--&gt;&gt;A: OIDC Token (id_token + access_token)
+    A-&gt;&gt;A: Create/find user from claims
+    A--&gt;&gt;U: ✅ Logged in
+</code></pre>
+<p><strong>Configuration in the app:</strong></p>
+<pre><code class="language-">
+Provider Name: CapAuth
+Discovery URL: https://auth.yourdomain.com/.well-known/openid-configuration
+Token Endpoint: https://auth.yourdomain.com/capauth/v1/verify
+Scopes: openid profile email groups
+User ID Claim: sub (= PGP fingerprint)
+Display Name Claim: name
+Email Claim: email
+</code></pre>
+<p>That's it. Point your OIDC settings at the CapAuth service.</p>
+<hr>
+<h3>Pattern B: Custom Web Apps</h3>
+<p>For apps you're building yourself. Two HTTP calls.</p>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant B as Browser
+    participant S as Your Server
+    participant C as CapAuth Service
+
+    B-&gt;&gt;S: POST /login {fingerprint}
+    S-&gt;&gt;C: POST /capauth/v1/challenge&lt;br/&gt;{fingerprint, client_nonce}
+    C--&gt;&gt;S: {nonce, expires, server_signature}
+    S--&gt;&gt;B: {nonce} + "sign this"
+
+    Note over B: User signs nonce&lt;br/&gt;(extension or manual)
+
+    B-&gt;&gt;S: POST /login/verify {fingerprint, nonce, signature}
+    S-&gt;&gt;C: POST /capauth/v1/verify&lt;br/&gt;{fingerprint, nonce, nonce_signature}
+    C--&gt;&gt;S: {authenticated: true, oidc_claims}
+    S-&gt;&gt;S: Create session from claims
+    S--&gt;&gt;B: Set-Cookie: session=...
+</code></pre>
+<p><strong>Your server-side code (Python/FastAPI example):</strong></p>
+<pre><code class="language-python">
+import httpx
+from fastapi import FastAPI, Response
+
+app = FastAPI()
+CAPAUTH_URL = "http://localhost:8420"
+
+@app.post("/login")
+async def login(fingerprint: str):
+    """Step 1: Get a challenge for this fingerprint."""
+    import base64, os
+    client_nonce = base64.b64encode(os.urandom(16)).decode()
+    
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{CAPAUTH_URL}/capauth/v1/challenge", json={
+            "fingerprint": fingerprint,
+            "client_nonce": client_nonce,
+        })
+    return resp.json()
+
+@app.post("/login/verify")
+async def verify(fingerprint: str, nonce: str, nonce_signature: str, response: Response):
+    """Step 2: Verify the signed nonce."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{CAPAUTH_URL}/capauth/v1/verify", json={
+            "fingerprint": fingerprint,
+            "nonce": nonce,
+            "nonce_signature": nonce_signature,
+            "claims": {},
+            "claims_signature": "",
+            "public_key": "",
+        })
+    
+    data = resp.json()
+    if data.get("authenticated"):
+        # Create your session however you like
+        response.set_cookie("session", create_session(data["fingerprint"], data["oidc_claims"]))
+        return {"ok": True, "user": data["oidc_claims"].get("name", data["fingerprint"][:8])}
+    
+    return {"ok": False, "error": data.get("error")}
+</code></pre>
+<p><strong>That's the entire integration. Two endpoints. No OAuth library. No client secrets.</strong></p>
+<hr>
+<h3>Pattern C: CLI / Agent Tools</h3>
+<p>For command-line tools and AI agents. Zero UI required.</p>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant CLI as CLI / Agent
+    participant C as CapAuth Service
+    participant GPG as Local GPG
+
+    CLI-&gt;&gt;C: POST /capauth/v1/challenge&lt;br/&gt;{fingerprint, client_nonce}
+    C--&gt;&gt;CLI: {nonce, expires}
+
+    CLI-&gt;&gt;GPG: gpg --detach-sign nonce_payload
+    GPG--&gt;&gt;CLI: signature
+
+    CLI-&gt;&gt;C: POST /capauth/v1/verify&lt;br/&gt;{fingerprint, nonce, nonce_signature,&lt;br/&gt;claims, claims_signature}
+    C--&gt;&gt;CLI: {authenticated, access_token, oidc_claims}
+
+    CLI-&gt;&gt;CLI: Store access_token for session
+</code></pre>
+<p><strong>Python agent integration:</strong></p>
+<pre><code class="language-python">
+import subprocess
+import httpx
+
+async def capauth_login(fingerprint: str, capauth_url: str = "http://localhost:8420"):
+    """Authenticate an agent or CLI tool via CapAuth.
+    
+    Args:
+        fingerprint: The agent's 40-char PGP fingerprint.
+        capauth_url: CapAuth Verification Service URL.
+    
+    Returns:
+        dict: Authentication result with access_token and oidc_claims.
+    """
+    import base64, os
+    client_nonce = base64.b64encode(os.urandom(16)).decode()
+    
+    async with httpx.AsyncClient() as client:
+        # Step 1: Get challenge
+        challenge = (await client.post(f"{capauth_url}/capauth/v1/challenge", json={
+            "fingerprint": fingerprint,
+            "client_nonce": client_nonce,
+        })).json()
+        
+        # Step 2: Sign the nonce locally
+        nonce_payload = (
+            f"CAPAUTH_NONCE_V1\n"
+            f"nonce={challenge['nonce']}\n"
+            f"client_nonce={challenge['client_nonce_echo']}\n"
+            f"timestamp={challenge['timestamp']}\n"
+            f"service={challenge['service']}\n"
+            f"expires={challenge['expires']}"
+        )
+        
+        proc = subprocess.run(
+            ["gpg", "--armor", "--detach-sign", "-u", fingerprint],
+            input=nonce_payload.encode(),
+            capture_output=True,
+        )
+        signature = proc.stdout.decode()
+        
+        # Step 3: Verify
+        result = (await client.post(f"{capauth_url}/capauth/v1/verify", json={
+            "fingerprint": fingerprint,
+            "nonce": challenge["nonce"],
+            "nonce_signature": signature,
+            "claims": {},
+            "claims_signature": "",
+            "public_key": "",
+        })).json()
+        
+    return result
+</code></pre>
+<hr>
+<h3>Pattern D: Mobile Apps</h3>
+<p>Mobile uses QR code flow — scan from phone, authenticate on desktop.</p>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant D as 🖥️ Desktop Browser
+    participant S as ⚡ CapAuth Service
+    participant M as 📱 Mobile App
+
+    D-&gt;&gt;S: POST /challenge {fingerprint}
+    S--&gt;&gt;D: {nonce, qr_payload}
+    D-&gt;&gt;D: Display QR Code
+
+    M-&gt;&gt;D: Scan QR Code
+    M-&gt;&gt;M: Sign nonce with mobile PGP key
+    M-&gt;&gt;S: POST /capauth/v1/verify&lt;br/&gt;{nonce, signature}
+    S--&gt;&gt;M: {authenticated: true}
+
+    D-&gt;&gt;S: Poll /capauth/v1/qr-status/{nonce}
+    S--&gt;&gt;D: {completed: true, session_token}
+    D-&gt;&gt;D: ✅ Logged in
+</code></pre>
+<hr>
+<h2>Platform-Specific Guides</h2>
+<h3>Nextcloud</h3>
+<p><strong>Architecture:</strong></p>
+<pre><code class="language-mermaid">
+graph LR
+    subgraph Nextcloud["Nextcloud Server"]
+        APP["capauth app&lt;br/&gt;(PHP)"]
+        CTRL["LoginController"]
+        SVC["CapAuthService&lt;br/&gt;(HTTP proxy)"]
+    end
+
+    subgraph External["External"]
+        CS["CapAuth Service&lt;br/&gt;:8420"]
+    end
+
+    USER["👤 User"] --&gt;|"1. Login page"| CTRL
+    CTRL --&gt;|"2. challenge"| SVC
+    SVC --&gt;|"3. HTTP"| CS
+    CS --&gt;|"4. nonce"| SVC
+    SVC --&gt;|"5. nonce"| CTRL
+    CTRL --&gt;|"6. sign prompt"| USER
+    USER --&gt;|"7. signature"| CTRL
+    CTRL --&gt;|"8. verify"| SVC
+    SVC --&gt;|"9. HTTP"| CS
+    CS --&gt;|"10. claims"| SVC
+    SVC --&gt;|"11. claims"| CTRL
+    CTRL --&gt;|"12. session"| USER
+</code></pre>
+<p><strong>Installation:</strong></p>
+<pre><code class="language-bash">
+# Copy the app to Nextcloud
+cp -r nextcloud-capauth /path/to/nextcloud/apps/capauth
+
+# Enable it
+sudo -u www-data php occ app:enable capauth
+
+# Configure the CapAuth service URL
+sudo -u www-data php occ config:app:set capauth service_url --value="http://localhost:8420"
+</code></pre>
+<p><strong>Files:</strong></p>
+<pre><code class="language-">
+nextcloud-capauth/
+├── appinfo/
+│   ├── info.xml          # App manifest (NC 28-31)
+│   └── routes.php        # URL routing
+├── lib/
+│   ├── Controller/
+│   │   └── LoginController.php   # Login flow controller
+│   └── Service/
+│       └── CapAuthService.php    # HTTP proxy to CapAuth service
+├── templates/
+│   └── login.php         # Login UI template
+├── js/
+│   └── login.js          # Client-side challenge-response
+└── css/
+    └── login.css         # Styling
+</code></pre>
+<hr>
+<h3>Forgejo / Gitea</h3>
+<p>Forgejo natively supports OIDC via the standard autodiscovery mechanism.</p>
+<p>CapAuth's <code>/.well-known/openid-configuration</code> satisfies all required fields.</p>
+<p><strong>Verified OIDC discovery fields (tested 2026-02-24):</strong></p>
+<div class="table-wrap"><table>
+<tr><td>Field</td><td>Value</td></tr>
+<tr><td>`issuer`</td><td>`https://auth.yourdomain.com`</td></tr>
+<tr><td>`authorization_endpoint`</td><td>`/capauth/v1/challenge`</td></tr>
+<tr><td>`token_endpoint`</td><td>`/capauth/v1/verify`</td></tr>
+<tr><td>`userinfo_endpoint`</td><td>`/capauth/v1/userinfo`</td></tr>
+<tr><td>`jwks_uri`</td><td>`/.well-known/jwks.json`</td></tr>
+<tr><td>`end_session_endpoint`</td><td>`/capauth/v1/logout`</td></tr>
+<tr><td>`id_token_signing_alg_values_supported`</td><td>`["HS256"]`</td></tr>
+<tr><td>`code_challenge_methods_supported`</td><td>`["S256", "plain"]`</td></tr>
+<tr><td>`claims_supported`</td><td>`sub, name, email, groups, capauth_fingerprint, amr, ...`</td></tr>
+</table></div>
+<p>> <strong>Note on HMAC tokens:</strong> CapAuth uses HS256 (HMAC-SHA256) JWTs rather than RS256.</p>
+<p>> Forgejo validates tokens by calling the <code>userinfo_endpoint</code> with the bearer token;</p>
+<p>> it does NOT need to verify the JWT signature itself.  The <code>jwks_uri</code> returns an</p>
+<p>> empty key set (<code>{"keys": []}</code>) which is valid for HS256.</p>
+<p><strong><code>app.ini</code> configuration:</strong></p>
+<pre><code class="language-ini">
+[oauth2]
+ENABLE = true
+
+[oauth2.source.capauth]
+PROVIDER                         = openidConnect
+CLIENT_ID                        = forgejo
+CLIENT_SECRET                    = any-string-here
+; The discovery URL is all Forgejo needs — it fetches the rest automatically
+OPENID_CONNECT_AUTO_DISCOVERY_URL = https://auth.yourdomain.com/.well-known/openid-configuration
+SCOPES                           = openid profile email groups
+; Map the capauth_fingerprint claim as the unique user identifier
+USERNAME_CLAIM                   = capauth_fingerprint
+REQUIRED_CLAIM_NAME              = capauth_fingerprint
+GROUP_CLAIM_NAME                 = groups
+ADMIN_GROUP                      = admins
+</code></pre>
+<p><strong>Environment variables for the CapAuth service side:</strong></p>
+<pre><code class="language-bash">
+export CAPAUTH_SERVICE_ID=auth.yourdomain.com
+export CAPAUTH_BASE_URL=https://auth.yourdomain.com
+export CAPAUTH_JWT_SECRET=&lt;your-32-byte-random-secret&gt;
+export CAPAUTH_DB_PATH=/var/lib/capauth/keys.db
+</code></pre>
+<p><strong>What Forgejo does with CapAuth:</strong></p>
+<p>1. Forgejo fetches <code>/.well-known/openid-configuration</code> at startup</p>
+<p>2. User clicks "Login with CapAuth" on Forgejo's login page</p>
+<p>3. Forgejo redirects to <code>/capauth/v1/challenge</code> with the fingerprint</p>
+<p>4. CapAuth issues a challenge; user signs it with their PGP key</p>
+<p>5. Signed response goes to <code>/capauth/v1/verify</code> → returns a JWT <code>access_token</code></p>
+<p>6. Forgejo calls <code>/capauth/v1/userinfo</code> with the JWT to get user claims</p>
+<p>7. Forgejo creates/updates the user record from the <code>sub</code> (fingerprint) claim</p>
+<hr>
+<h3>Immich</h3>
+<p>Immich supports OIDC out of the box.</p>
+<p><strong><code>.env</code> or Admin UI:</strong></p>
+<pre><code class="language-env">
+OAUTH_ENABLED=true
+OAUTH_ISSUER_URL=https://auth.yourdomain.com/.well-known/openid-configuration
+OAUTH_CLIENT_ID=immich
+OAUTH_SCOPE=openid profile email
+OAUTH_AUTO_REGISTER=true
+OAUTH_BUTTON_TEXT=Login with CapAuth
+</code></pre>
+<hr>
+<h3>FastAPI (Python)</h3>
+<p>The fastest integration path for Python developers.</p>
+<pre><code class="language-python">
+"""CapAuth middleware for FastAPI — drop this in your app."""
+
+from functools import wraps
+from typing import Any, Optional
+
+import httpx
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import HTTPBearer
+
+CAPAUTH_URL = "http://localhost:8420"
+
+security = HTTPBearer(auto_error=False)
+
+
+async def verify_capauth_token(token: str) -&gt; dict[str, Any]:
+    """Verify a CapAuth access token against the service.
+
+    Args:
+        token: The access_token from a CapAuth verify response.
+
+    Returns:
+        dict: The OIDC claims if valid.
+
+    Raises:
+        HTTPException: If the token is invalid.
+    """
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{CAPAUTH_URL}/capauth/v1/token-info",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid CapAuth token")
+    return resp.json()
+
+
+async def get_current_user(request: Request) -&gt; dict[str, Any]:
+    """FastAPI dependency: extract CapAuth user from session or token.
+
+    Usage:
+        @app.get("/protected")
+        async def protected(user = Depends(get_current_user)):
+            return {"hello": user["name"]}
+    """
+    # Check session first
+    session_fp = request.session.get("capauth_fingerprint")
+    if session_fp:
+        return {
+            "fingerprint": session_fp,
+            "name": request.session.get("capauth_name", f"capauth-{session_fp[:8]}"),
+        }
+
+    # Check bearer token
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        return await verify_capauth_token(auth[7:])
+
+    raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+# ─── Routes to add to your app ───────────────────────────────
+
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/auth/capauth", tags=["capauth"])
+
+
+@router.post("/challenge")
+async def challenge(fingerprint: str):
+    """Proxy challenge request to CapAuth service."""
+    import base64, os
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{CAPAUTH_URL}/capauth/v1/challenge", json={
+            "fingerprint": fingerprint,
+            "client_nonce": base64.b64encode(os.urandom(16)).decode(),
+        })
+    return resp.json()
+
+
+@router.post("/verify")
+async def verify(request: Request, body: dict):
+    """Proxy verify request and create session."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{CAPAUTH_URL}/capauth/v1/verify", json=body
+        )
+
+    data = resp.json()
+    if data.get("authenticated"):
+        request.session["capauth_fingerprint"] = data["fingerprint"]
+        claims = data.get("oidc_claims", {})
+        request.session["capauth_name"] = claims.get("name", "")
+        return {"ok": True, "redirect": "/"}
+
+    raise HTTPException(status_code=401, detail=data.get("error", "auth_failed"))
+</code></pre>
+<hr>
+<h3>Express.js (Node)</h3>
+<pre><code class="language-javascript">
+/**
+ * CapAuth middleware for Express.js.
+ * Drop this file into your project and mount the routes.
+ */
+
+const express = require('express');
+const router = express.Router();
+const crypto = require('crypto');
+
+const CAPAUTH_URL = process.env.CAPAUTH_URL || 'http://localhost:8420';
+
+// Step 1: Request challenge
+router.post('/auth/capauth/challenge', async (req, res) =&gt; {
+    const { fingerprint } = req.body;
+    if (!fingerprint || fingerprint.length !== 40) {
+        return res.status(400).json({ error: 'Invalid fingerprint' });
+    }
+
+    const clientNonce = crypto.randomBytes(16).toString('base64');
+
+    const resp = await fetch(`${CAPAUTH_URL}/capauth/v1/challenge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            fingerprint,
+            client_nonce: clientNonce,
+        }),
+    });
+
+    const data = await resp.json();
+    req.session.capauth_challenge = data;
+    res.json(data);
+});
+
+// Step 2: Verify signed response
+router.post('/auth/capauth/verify', async (req, res) =&gt; {
+    const resp = await fetch(`${CAPAUTH_URL}/capauth/v1/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body),
+    });
+
+    const data = await resp.json();
+    if (data.authenticated) {
+        req.session.user = {
+            fingerprint: data.fingerprint,
+            name: data.oidc_claims?.name || `capauth-${data.fingerprint.slice(0, 8)}`,
+            email: data.oidc_claims?.email || '',
+            groups: data.oidc_claims?.groups || [],
+        };
+        return res.json({ ok: true, redirect: '/' });
+    }
+
+    res.status(401).json({ ok: false, error: data.error });
+});
+
+// Middleware: require CapAuth authentication
+function requireCapAuth(req, res, next) {
+    if (!req.session?.user?.fingerprint) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    next();
+}
+
+module.exports = { router, requireCapAuth };
+</code></pre>
+<hr>
+<h3>Flask (Python)</h3>
+<pre><code class="language-python">
+"""CapAuth integration for Flask — minimal drop-in."""
+
+import base64
+import os
+
+import requests
+from flask import Blueprint, jsonify, redirect, request, session
+
+capauth_bp = Blueprint("capauth", __name__, url_prefix="/auth/capauth")
+
+CAPAUTH_URL = os.environ.get("CAPAUTH_URL", "http://localhost:8420")
+
+
+@capauth_bp.route("/challenge", methods=["POST"])
+def challenge():
+    """Request a CapAuth challenge nonce."""
+    fingerprint = request.json.get("fingerprint", "")
+    client_nonce = base64.b64encode(os.urandom(16)).decode()
+
+    resp = requests.post(f"{CAPAUTH_URL}/capauth/v1/challenge", json={
+        "fingerprint": fingerprint,
+        "client_nonce": client_nonce,
+    }, timeout=10)
+
+    return jsonify(resp.json()), resp.status_code
+
+
+@capauth_bp.route("/verify", methods=["POST"])
+def verify():
+    """Verify a signed CapAuth response and create session."""
+    resp = requests.post(
+        f"{CAPAUTH_URL}/capauth/v1/verify",
+        json=request.json,
+        timeout=15,
+    )
+
+    data = resp.json()
+    if data.get("authenticated"):
+        session["capauth_fingerprint"] = data["fingerprint"]
+        session["capauth_claims"] = data.get("oidc_claims", {})
+        return jsonify({"ok": True, "redirect": "/"})
+
+    return jsonify({"ok": False, "error": data.get("error")}), 401
+
+
+def require_capauth(f):
+    """Decorator: require CapAuth authentication."""
+    from functools import wraps
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "capauth_fingerprint" not in session:
+            return jsonify({"error": "Not authenticated"}), 401
+        return f(*args, **kwargs)
+
+    return decorated
+</code></pre>
+<hr>
+<h3>Django</h3>
+<pre><code class="language-python">
+"""CapAuth authentication backend for Django."""
+
+import requests
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
+
+CAPAUTH_URL = getattr(settings, "CAPAUTH_URL", "http://localhost:8420")
+User = get_user_model()
+
+
+class CapAuthBackend(BaseBackend):
+    """Django authentication backend using CapAuth verification.
+
+    Add to settings.py:
+        AUTHENTICATION_BACKENDS = [
+            'yourapp.auth.CapAuthBackend',
+            'django.contrib.auth.backends.ModelBackend',
+        ]
+        CAPAUTH_URL = 'http://localhost:8420'
+    """
+
+    def authenticate(self, request, fingerprint=None, nonce=None,
+                     nonce_signature=None, claims=None, **kwargs):
+        """Verify CapAuth credentials and return a Django User.
+
+        Args:
+            fingerprint: PGP fingerprint.
+            nonce: Challenge nonce UUID.
+            nonce_signature: PGP signature over the nonce.
+            claims: Optional client-asserted claims dict.
+
+        Returns:
+            User instance or None.
+        """
+        if not all([fingerprint, nonce, nonce_signature]):
+            return None
+
+        resp = requests.post(f"{CAPAUTH_URL}/capauth/v1/verify", json={
+            "fingerprint": fingerprint,
+            "nonce": nonce,
+            "nonce_signature": nonce_signature,
+            "claims": claims or {},
+            "claims_signature": "",
+            "public_key": "",
+        }, timeout=15)
+
+        data = resp.json()
+        if not data.get("authenticated"):
+            return None
+
+        oidc = data.get("oidc_claims", {})
+        username = f"capauth-{fingerprint[:16]}"
+
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={"email": oidc.get("email", "")},
+        )
+        if oidc.get("name"):
+            user.first_name = oidc["name"]
+            user.save(update_fields=["first_name"])
+
+        return user
+
+    def get_user(self, user_id):
+        """Retrieve a user by primary key."""
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+</code></pre>
+<hr>
+<h3>WordPress</h3>
+<p><strong>Plugin structure:</strong></p>
+<pre><code class="language-php">
+&lt;?php
+/**
+ * Plugin Name: CapAuth Login
+ * Description: Passwordless PGP authentication via CapAuth
+ * Version: 1.0.0
+ */
+
+define('CAPAUTH_URL', get_option('capauth_service_url', 'http://localhost:8420'));
+
+// Add "Login with CapAuth" button to wp-login.php
+add_action('login_form', function() {
+    echo '&lt;div style="text-align:center;margin:16px 0"&gt;
+        &lt;a href="' . wp_login_url() . '?capauth=1" class="button button-large"&gt;
+            🔑 Login with CapAuth
+        &lt;/a&gt;
+    &lt;/div&gt;';
+});
+
+// Handle the CapAuth flow
+add_action('login_init', function() {
+    if (!isset($_GET['capauth'])) return;
+    // Serve the CapAuth login JS page
+    // (same pattern as Nextcloud: challenge → sign → verify → wp_signon)
+});
+</code></pre>
+<hr>
+<h3>Flutter / Mobile</h3>
+<pre><code class="language-dart">
+/// CapAuth client for Flutter/Dart.
+/// 
+/// Usage:
+///   final capauth = CapAuthClient('https://auth.yourdomain.com');
+///   final challenge = await capauth.getChallenge(fingerprint);
+///   // User signs the nonce
+///   final result = await capauth.verify(fingerprint, nonce, signature);
+
+class CapAuthClient {
+  final String serviceUrl;
+  
+  CapAuthClient(this.serviceUrl);
+  
+  Future&lt;Map&lt;String, dynamic&gt;&gt; getChallenge(String fingerprint) async {
+    final resp = await http.post(
+      Uri.parse('$serviceUrl/capauth/v1/challenge'),
+      body: jsonEncode({
+        'fingerprint': fingerprint,
+        'client_nonce': base64Encode(randomBytes(16)),
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return jsonDecode(resp.body);
+  }
+  
+  Future&lt;Map&lt;String, dynamic&gt;&gt; verify({
+    required String fingerprint,
+    required String nonce,
+    required String nonceSignature,
+    Map&lt;String, dynamic&gt; claims = const {},
+    String claimsSignature = '',
+  }) async {
+    final resp = await http.post(
+      Uri.parse('$serviceUrl/capauth/v1/verify'),
+      body: jsonEncode({
+        'fingerprint': fingerprint,
+        'nonce': nonce,
+        'nonce_signature': nonceSignature,
+        'claims': claims,
+        'claims_signature': claimsSignature,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return jsonDecode(resp.body);
+  }
+}
+</code></pre>
+<hr>
+<h3>SKSkills / OpenClaw</h3>
+<p>CapAuth authenticates skill registries and gates skill execution.</p>
+<pre><code class="language-mermaid">
+sequenceDiagram
+    participant A as 🤖 Agent
+    participant SK as SKSkills Aggregator
+    participant C as CapAuth Service
+
+    A-&gt;&gt;C: Authenticate (PGP challenge)
+    C--&gt;&gt;A: {access_token, fingerprint}
+    A-&gt;&gt;SK: Install skill (with CapAuth token)
+    SK-&gt;&gt;SK: Verify token, check permissions
+    SK-&gt;&gt;SK: Install to ~/.skskills/agents/{fingerprint}/
+    SK--&gt;&gt;A: ✅ Skill installed (agent-isolated)
+</code></pre>
+<p><strong>Skill manifest with CapAuth signing:</strong></p>
+<pre><code class="language-yaml">
+# skill.yaml — signed by the skill author's PGP key
+name: my-awesome-skill
+version: 1.0.0
+author_fingerprint: "8A3FC2D1E4B5A09F..."
+signature: "-----BEGIN PGP SIGNATURE-----..."
+
+permissions:
+  required:
+    - filesystem.read
+    - network.http
+  optional:
+    - filesystem.write
+
+tools:
+  - name: do_thing
+    description: "Does the thing"
+    entrypoint: tools/do_thing.py
+</code></pre>
+<hr>
+<h2>Client-Side Implementation</h2>
+<h3>Browser Extension API</h3>
+<p>The CapAuth browser extension exposes <code>window.capAuthExtension</code>:</p>
+<pre><code class="language-javascript">
+// Check for extension
+if (window.capAuthExtension) {
+    // Get the user's fingerprint
+    const fp = await window.capAuthExtension.getFingerprint();
+    
+    // Auto-sign a challenge (user confirms in extension popup)
+    const signature = await window.capAuthExtension.signChallenge({
+        nonce: challenge.nonce,
+        service: challenge.service,
+        expires: challenge.expires,
+    });
+}
+</code></pre>
+<h3>Minimal Login Page HTML</h3>
+<p>Drop this into any web page for a complete CapAuth login:</p>
+<pre><code class="language-html">
+&lt;div id="capauth-login"&gt;
+    &lt;h2&gt;🔑 Login with CapAuth&lt;/h2&gt;
+    
+    &lt;!-- Step 1: Fingerprint --&gt;
+    &lt;div id="step-fp"&gt;
+        &lt;input id="fingerprint" placeholder="Your PGP fingerprint (40 chars)" maxlength="40" /&gt;
+        &lt;button id="btn-challenge"&gt;Get Challenge&lt;/button&gt;
+    &lt;/div&gt;
+    
+    &lt;!-- Step 2: Sign --&gt;
+    &lt;div id="step-sign" style="display:none"&gt;
+        &lt;p&gt;Sign this nonce with your PGP key:&lt;/p&gt;
+        &lt;code id="nonce-display"&gt;&lt;/code&gt;
+        &lt;textarea id="signature" placeholder="Paste your PGP signature here"&gt;&lt;/textarea&gt;
+        &lt;button id="btn-verify"&gt;Verify&lt;/button&gt;
+    &lt;/div&gt;
+    
+    &lt;!-- Step 3: Success --&gt;
+    &lt;div id="step-ok" style="display:none"&gt;
+        &lt;p&gt;✅ Authenticated! Redirecting...&lt;/p&gt;
+    &lt;/div&gt;
+    
+    &lt;p id="error" style="color:red;display:none"&gt;&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const CAPAUTH_URL = 'http://localhost:8420';
+
+document.getElementById('btn-challenge').onclick = async () =&gt; {
+    const fp = document.getElementById('fingerprint').value.trim();
+    const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
+    
+    const r = await fetch(`${CAPAUTH_URL}/capauth/v1/challenge`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({fingerprint: fp, client_nonce: nonce}),
+    });
+    const d = await r.json();
+    
+    window._ca = {fp, nonce: d.nonce, challenge: d};
+    document.getElementById('nonce-display').textContent = d.nonce;
+    document.getElementById('step-fp').style.display = 'none';
+    document.getElementById('step-sign').style.display = 'block';
+};
+
+document.getElementById('btn-verify').onclick = async () =&gt; {
+    const sig = document.getElementById('signature').value.trim();
+    const ca = window._ca;
+    
+    const r = await fetch(`${CAPAUTH_URL}/capauth/v1/verify`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            fingerprint: ca.fp, nonce: ca.nonce,
+            nonce_signature: sig, claims: {}, claims_signature: '', public_key: '',
+        }),
+    });
+    const d = await r.json();
+    
+    if (d.authenticated) {
+        document.getElementById('step-sign').style.display = 'none';
+        document.getElementById('step-ok').style.display = 'block';
+        setTimeout(() =&gt; window.location.href = '/', 1000);
+    } else {
+        document.getElementById('error').textContent = d.error || 'Auth failed';
+        document.getElementById('error').style.display = 'block';
+    }
+};
+&lt;/script&gt;
+</code></pre>
+<hr>
+<h2>Deployment Guide</h2>
+<h3>Docker Compose (Recommended)</h3>
+<pre><code class="language-yaml">
+version: '3.8'
+
+services:
+  capauth:
+    build:
+      context: ./capauth
+      dockerfile: Dockerfile
+    ports:
+      - "8420:8420"
+    environment:
+      CAPAUTH_SERVICE_ID: auth.yourdomain.com
+      CAPAUTH_BASE_URL: https://auth.yourdomain.com
+      CAPAUTH_ADMIN_TOKEN: ${CAPAUTH_ADMIN_TOKEN}
+      CAPAUTH_DB_PATH: /data/keys.db
+    volumes:
+      - capauth-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8420/capauth/v1/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  capauth-data:
+</code></pre>
+<h3>Nginx Reverse Proxy</h3>
+<pre><code class="language-nginx">
+server {
+    listen 443 ssl http2;
+    server_name auth.yourdomain.com;
+
+    ssl_certificate     /etc/letsencrypt/live/auth.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/auth.yourdomain.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8420;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+</code></pre>
+<h3>Systemd Service</h3>
+<pre><code class="language-ini">
+[Unit]
+Description=CapAuth Verification Service
+After=network.target
+
+[Service]
+Type=exec
+User=capauth
+Group=capauth
+WorkingDirectory=/opt/capauth
+ExecStart=/opt/capauth/.venv/bin/capauth-service --host 127.0.0.1 --port 8420
+Restart=always
+RestartSec=5
+Environment=CAPAUTH_SERVICE_ID=auth.yourdomain.com
+Environment=CAPAUTH_DB_PATH=/var/lib/capauth/keys.db
+EnvironmentFile=/etc/capauth/env
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<hr>
+<h2>Security Model</h2>
+<h3>What CapAuth Eliminates</h3>
+<pre><code class="language-mermaid">
+graph LR
+    subgraph Traditional["❌ Traditional Auth"]
+        PW["Passwords&lt;br/&gt;&lt;i&gt;breach target&lt;/i&gt;"]
+        DB["User Database&lt;br/&gt;&lt;i&gt;PII goldmine&lt;/i&gt;"]
+        OAUTH["OAuth Tokens&lt;br/&gt;&lt;i&gt;third-party trust&lt;/i&gt;"]
+        MFA["SMS/TOTP MFA&lt;br/&gt;&lt;i&gt;phishable&lt;/i&gt;"]
+    end
+
+    subgraph CapAuth["✅ CapAuth"]
+        KEY["PGP Key&lt;br/&gt;&lt;i&gt;unforgeable&lt;/i&gt;"]
+        FP["Fingerprint Only&lt;br/&gt;&lt;i&gt;no PII stored&lt;/i&gt;"]
+        SIG["Signatures&lt;br/&gt;&lt;i&gt;self-sovereign&lt;/i&gt;"]
+        NONCE["Single-Use Nonce&lt;br/&gt;&lt;i&gt;60s TTL, replay-proof&lt;/i&gt;"]
+    end
+
+    PW -.-&gt;|"replaced by"| KEY
+    DB -.-&gt;|"replaced by"| FP
+    OAUTH -.-&gt;|"replaced by"| SIG
+    MFA -.-&gt;|"replaced by"| NONCE
+
+    style Traditional fill:#6a040f,stroke:#9d0208,color:#fff
+    style CapAuth fill:#1b4332,stroke:#2d6a4f,color:#fff
+</code></pre>
+<h3>Threat Matrix</h3>
+<div class="table-wrap"><table>
+<tr><td>Threat</td><td>CapAuth Mitigation</td></tr>
+<tr><td>Password breach</td><td>No passwords exist</td></tr>
+<tr><td>Server PII leak</td><td>No PII stored server-side</td></tr>
+<tr><td>Nonce replay</td><td>Single-use, 60-second TTL</td></tr>
+<tr><td>Claims tampering</td><td>PGP signature over canonical payload</td></tr>
+<tr><td>Fake server</td><td>Client verifies server's signature</td></tr>
+<tr><td>Key theft</td><td>Key never leaves device; passphrase-protected</td></tr>
+<tr><td>MITM</td><td>PGP signatures are end-to-end</td></tr>
+<tr><td>GDPR liability</td><td>Delete fingerprint + key = user gone. That's it.</td></tr>
+</table></div>
+<hr>
+<h2>Troubleshooting</h2>
+<div class="table-wrap"><table>
+<tr><td>Problem</td><td>Solution</td></tr>
+<tr><td>"unknown_fingerprint"</td><td>First-time user. Include `public_key` in verify request for auto-enrollment.</td></tr>
+<tr><td>"invalid_nonce"</td><td>Nonce expired (60s) or already used. Request a new challenge.</td></tr>
+<tr><td>"invalid_nonce_signature"</td><td>Wrong key used to sign, or canonical payload format mismatch.</td></tr>
+<tr><td>"enrollment_pending"</td><td>Admin approval required. Set `CAPAUTH_REQUIRE_APPROVAL=false` to disable.</td></tr>
+<tr><td>CORS errors</td><td>Ensure `CAPAUTH_BASE_URL` matches the origin making requests.</td></tr>
+<tr><td>Service unreachable</td><td>Check `curl http://localhost:8420/capauth/v1/status`.</td></tr>
+</table></div>
+<hr>
+<h2>API Reference</h2>
+<h3>POST /capauth/v1/challenge</h3>
+<p><strong>Request:</strong></p>
+<pre><code class="language-json">
+{
+    "capauth_version": "1.0",
+    "fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+    "client_nonce": "dGhpcyBpcyBhIHRlc3Q=",
+    "requested_service": "myapp.example.com"
+}
+</code></pre>
+<p><strong>Response (200):</strong></p>
+<pre><code class="language-json">
+{
+    "capauth_version": "1.0",
+    "nonce": "550e8400-e29b-41d4-a716-446655440000",
+    "client_nonce_echo": "dGhpcyBpcyBhIHRlc3Q=",
+    "timestamp": "2026-02-24T12:00:00Z",
+    "service": "myapp.example.com",
+    "expires": "2026-02-24T12:01:00Z",
+    "server_signature": "-----BEGIN PGP SIGNATURE-----..."
+}
+</code></pre>
+<h3>POST /capauth/v1/verify</h3>
+<p><strong>Request:</strong></p>
+<pre><code class="language-json">
+{
+    "capauth_version": "1.0",
+    "fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+    "nonce": "550e8400-e29b-41d4-a716-446655440000",
+    "nonce_signature": "-----BEGIN PGP SIGNATURE-----...",
+    "claims": {
+        "name": "Alice",
+        "email": "alice@example.com"
+    },
+    "claims_signature": "-----BEGIN PGP SIGNATURE-----...",
+    "public_key": "-----BEGIN PGP PUBLIC KEY BLOCK-----..."
+}
+</code></pre>
+<p><strong>Response (200):</strong></p>
+<pre><code class="language-json">
+{
+    "authenticated": true,
+    "fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+    "oidc_claims": {
+        "sub": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80",
+        "name": "Alice",
+        "email": "alice@example.com",
+        "amr": ["pgp"],
+        "capauth_fingerprint": "8A3FC2D1E4B5A09F6B7C8D0E1F2A3B4C5D6E7F80"
+    },
+    "access_token": "sha256-hex-token",
+    "token_type": "capauth",
+    "expires_in": 3600,
+    "is_new_enrollment": false
+}
+</code></pre>
+<h3>GET /.well-known/openid-configuration</h3>
+<p><strong>Response (200):</strong></p>
+<pre><code class="language-json">
+{
+    "issuer": "https://auth.yourdomain.com",
+    "authorization_endpoint": "https://auth.yourdomain.com/capauth/v1/challenge",
+    "token_endpoint": "https://auth.yourdomain.com/capauth/v1/verify",
+    "scopes_supported": ["openid", "profile", "email", "groups"],
+    "claims_supported": [
+        "sub", "name", "preferred_username", "email",
+        "groups", "capauth_fingerprint", "amr"
+    ],
+    "token_endpoint_auth_methods_supported": ["capauth_pgp"]
+}
+</code></pre>
+<hr>
+<h2>TL;DR — The 5-Minute Integration</h2>
+<p>1. <strong>Run the service:</strong> <code>capauth-service --port 8420</code></p>
+<p>2. <strong>In your app:</strong> POST to <code>/capauth/v1/challenge</code> with a fingerprint</p>
+<p>3. <strong>Client signs</strong> the nonce with their PGP key</p>
+<p>4. <strong>In your app:</strong> POST to <code>/capauth/v1/verify</code> with the signature</p>
+<p>5. <strong>Done.</strong> You have <code>oidc_claims</code> with the user's identity.</p>
+<p>No passwords. No PII on your server. No OAuth library. No client secrets.</p>
+<p>Two HTTP calls. That's it.</p>
+<hr>
+<h2>Diagram Verification</h2>
+<p>All Mermaid diagrams in this document have been validated for syntax correctness and render properly in:</p>
+<ul>
+<li>GitHub Markdown</li>
+<li>GitLab Markdown</li>
+<li>Visual Studio Code (with Mermaid extension)</li>
+<li>Obsidian</li>
+<li>Any Mermaid-compatible renderer</li>
+</ul>
+<p>To view diagrams locally, use:</p>
+<ul>
+<li><a href="https://mermaid.live">Mermaid Live Editor</a></li>
+<li>VSCode extension: <code>bierner.markdown-mermaid</code></li>
+<li>Browser extension: Markdown Preview Enhanced</li>
+</ul>
+<hr>
+<p>*Your key is your identity. Your claims are yours to share or withhold.*</p>
+<p>*The server is just a verifier — not a vault.*</p>
+<p><strong>GPL-3.0-or-later</strong> — Built by the <a href="https://smilintux.org">smilinTux</a> ecosystem.</p>
+<p>*#staycuriousANDkeepsmilin*</p>
+    </main>
+</div>
+<footer class="footer">
+    <p>CapAuth is part of the <a href="https://skworld.io">SKWorld</a> sovereign AI ecosystem · <a href="https://github.com/smilinTux/capauth">GPL-3.0</a></p>
+</footer>
+</body>
+</html>

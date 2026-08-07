@@ -4,30 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ════════════════════════════════════════════════════════════════════
-       SKWorld repo-docs viewer — REUSABLE TEMPLATE
-       Renders a public repo's docs/*.md live, in the SKWorld house style.
-       Reference implementation: skcomms.skworld.io/docs.html
-
-       TO ADOPT (see site-repos/_seo-templates/README.md → "Repo-docs viewer"):
-         1. Copy this file to your site repo root as  docs.html
-         2. Replace every  token  below (grep for the double-brace marker)
-         3. Set REPO + BRANCH in the CONFIG block near the bottom (<script>)
-         4. Add a "Docs" nav link on index.html  →  <a href="/docs.html">Docs</a>
-         5. Regenerate the fallback manifest:
-              python _seo-templates/docs-manifest-gen.py smilinTux/capauth \
-                  --out docs-manifest.json
-       ════════════════════════════════════════════════════════════════════ -->
+  <!-- SKWorld repo-docs viewer — renders smilinTux/capauth docs/*.md live -->
 
   <title>Docs — CapAuth · Sovereign Identity Protocol</title>
-  <meta name="description" content="CapAuth documentation — architecture, challenge-response protocol, PGP identity, claims, PQC root migration, and enterprise integration guides. Rendered live from the public smilinTux/capauth repo.">
+  <meta name="description" content="Challenge-response identity verification with PGP keys. No passwords. No servers. No cloud. Your key is your identity. Open source under GPL-3.0.">
 
   <link rel="canonical" href="https://capauth.skworld.io/docs.html">
   <meta name="robots" content="index,follow">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Docs — CapAuth · Sovereign Identity Protocol">
-  <meta property="og:description" content="CapAuth documentation — architecture, challenge-response protocol, PGP identity, claims, PQC root migration, and enterprise integration guides. Rendered live from the public smilinTux/capauth repo.">
+  <meta property="og:description" content="Challenge-response identity verification with PGP keys. No passwords. No servers. No cloud. Your key is your identity. Open source under GPL-3.0.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://capauth.skworld.io/docs.html">
   <meta property="og:site_name" content="CapAuth · SKWorld">
@@ -35,8 +22,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://capauth.skworld.io/og.png">
 
-  <meta name="theme-color" content="#0a0a1a">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐧</text></svg>">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
 
   <!-- highlight.js theme (github-dark) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
@@ -335,7 +322,7 @@
   <!-- NAV — replace the section links with your own site anchors -->
   <nav class="site-nav" role="navigation" aria-label="Main navigation">
     <div class="nav-inner">
-      <a href="/" class="nav-logo">🐧 Cap<span>Auth</span></a>
+      <a href="/" class="nav-logo">🔐 Cap<span>Auth</span></a>
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle docs menu">☰ Docs</button>
       <ul class="nav-links">
         <li><a href="/#protocol">Protocol</a></li>

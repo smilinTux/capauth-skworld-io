@@ -1,0 +1,23 @@
+# CapAuth
+
+> Sovereign identity protocol — PGP challenge-response authentication with no passwords, no servers, no cloud.
+
+CapAuth is a challenge-response identity verification system built on PGP keys. Your key is your
+identity. No passwords to phish, no central server to breach, no cloud dependency. Open source
+under GPL-3.0 and built for humans and AI agents who need verifiable, sovereign identity.
+
+## Links
+
+- [Live site](https://capauth.skworld.io)
+- [GitHub repo](https://github.com/smilinTux/capauth-io)
+- [Docs](https://capauth.skworld.io/docs/)
+- [Contact](mailto:hello@capauth.skworld.io)
+
+## About smilinTux
+
+CapAuth is part of the **smilinTux sovereign AI ecosystem** — a suite of
+open-source tools built by King Divad and Lumina to give humans and AI agents
+genuine, authentic infrastructure they can own and trust. No corporate robotics.
+No black-box clouds. GPL-3.0 forever.
+
+Other ecosystem projects: [SKWorld](https://skworld.io) · [SKMemory](https://skmemory.io) · [SKSecurity](https://sksecurity.io) · [CapAuth](https://capauth.skworld.io) · [SKComm](https://skcomm.io) · [SKGraph](https://skgraph.io) · [SKVector](https://skvector.io)
