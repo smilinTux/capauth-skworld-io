@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-16",
+  "generated": "2026-08-17",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -80,6 +80,10 @@
     {
       "name": "ROOT_ROTATION_CEREMONY.md",
       "title": "Sovereign Root-Key Rotation Ceremony"
+    },
+    {
+      "name": "TRUST_GRAPH_COORD_PROJECTION.md",
+      "title": "The coordination projection as a trust input"
     },
     {
       "name": "ZERO_KNOWLEDGE_PROFILE.md",
