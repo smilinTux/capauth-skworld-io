@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-20",
+  "generated": "2026-08-21",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -52,6 +52,10 @@
     {
       "name": "ENTERPRISE_MANAGED_KEYS.md",
       "title": "CapAuth Enterprise Managed Keys / Keyrings — Research & Decision Doc"
+    },
+    {
+      "name": "HUMAN_IDENTITY_SETUP_AND_ROTATION.md",
+      "title": "Human identity setup, recovery, and key rotation"
     },
     {
       "name": "INTEGRATION_BLUEPRINT.md",
