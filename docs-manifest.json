@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-21",
+  "generated": "2026-08-22",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -50,12 +50,24 @@
       "title": "CapAuth Cryptographic Specification"
     },
     {
+      "name": "DELEGATED_CAPABILITIES.md",
+      "title": "Strict delegated capabilities"
+    },
+    {
+      "name": "DOWNSTREAM_DURABLE_BACKENDS.md",
+      "title": "Downstream durable backend integration checklist"
+    },
+    {
       "name": "ENTERPRISE_MANAGED_KEYS.md",
       "title": "CapAuth Enterprise Managed Keys / Keyrings — Research & Decision Doc"
     },
     {
       "name": "HUMAN_IDENTITY_SETUP_AND_ROTATION.md",
       "title": "Human identity setup, recovery, and key rotation"
+    },
+    {
+      "name": "IDENTITY_ESTATE.md",
+      "title": "Identity estate discovery and retirement"
     },
     {
       "name": "INTEGRATION_BLUEPRINT.md",
