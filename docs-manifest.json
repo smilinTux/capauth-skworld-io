@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-24",
+  "generated": "2026-08-25",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -35,7 +35,7 @@
     },
     {
       "name": "CAPAUTH_OIDC_IDP.md",
-      "title": "CapAuth as an OIDC/OAuth2 Identity Provider (Track-2 spike)"
+      "title": "CapAuth as an OIDC/OAuth2 Identity Provider"
     },
     {
       "name": "CLAIMS.md",
