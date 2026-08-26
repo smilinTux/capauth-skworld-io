@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-25",
+  "generated": "2026-08-26",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -28,6 +28,10 @@
     {
       "name": "AUTHENTIK_STRATEGY_DECISION.md",
       "title": "Decision Document: Long-Term Strategy for the CapAuth ↔ Authentik Integration"
+    },
+    {
+      "name": "CAPAUTH-WEBAUTHN-05-QUALIFICATION.md",
+      "title": "CAPAUTH-WEBAUTHN-05 qualification plan"
     },
     {
       "name": "CAPAUTH_BUNKER_REMOTE_SIGNER.md",
