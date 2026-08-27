@@ -2,7 +2,7 @@
   "repo": "smilinTux/capauth",
   "branch": "main",
   "path": "docs",
-  "generated": "2026-08-26",
+  "generated": "2026-08-27",
   "note": "Committed fallback for the /docs viewer when the GitHub Contents API is unavailable or rate-limited. Regenerate from: python docs-manifest-gen.py smilinTux/capauth --out docs-manifest.json",
   "docs": [
     {
@@ -84,6 +84,10 @@
     {
       "name": "M0-capauth-importer-inventory.md",
       "title": "M0: capauth Importer Inventory (blast-radius map)"
+    },
+    {
+      "name": "PASSPHRASE_ROTATION.md",
+      "title": "Passphrase rotation and custody-bundle rewrap"
     },
     {
       "name": "PQC_CAPAUTH_REVISIT.md",
