@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CapAuth Component Map",
+    "subtitle": "Where capauth sits in the SKWorld ecosystem: the sovereign identity root, who delegates to it, and the optional platform/third-party edges",
+    "output": "capauth.architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "capauth",
+      "type": "security",
+      "label": "capauth",
+      "sublabel": "PGP keypair, challenge-response, DID generator",
+      "pos": [60, 70],
+      "size": [250, 100],
+      "tag": "canonical identity resolver"
+    },
+    {
+      "id": "skmemory",
+      "type": "database",
+      "label": "skmemory",
+      "sublabel": "memory capability",
+      "pos": [340, 40],
+      "size": [190, 60]
+    },
+    {
+      "id": "sksso",
+      "type": "security",
+      "label": "sksso",
+      "sublabel": "single sign-on, Core sibling",
+      "pos": [340, 130],
+      "size": [190, 60]
+    },
+    {
+      "id": "sksec",
+      "type": "security",
+      "label": "sksec",
+      "sublabel": "security capability, Core sibling",
+      "pos": [340, 220],
+      "size": [190, 60]
+    },
+    {
+      "id": "forgejo",
+      "type": "external",
+      "label": "Forgejo",
+      "sublabel": "passwordless login via OIDC",
+      "pos": [600, 40],
+      "size": [190, 60]
+    },
+    {
+      "id": "authentik",
+      "type": "external",
+      "label": "Authentik",
+      "sublabel": "OIDC bridge, custom stage",
+      "pos": [600, 130],
+      "size": [190, 60]
+    },
+    {
+      "id": "skchat",
+      "type": "frontend",
+      "label": "skchat",
+      "sublabel": "identity-routed messaging",
+      "pos": [60, 380],
+      "size": [190, 60]
+    },
+    {
+      "id": "skcomms",
+      "type": "messagebus",
+      "label": "skcomms",
+      "sublabel": "FQID addressing",
+      "pos": [340, 380],
+      "size": [190, 60]
+    },
+    {
+      "id": "skcapstone",
+      "type": "backend",
+      "label": "skcapstone",
+      "sublabel": "framework hub",
+      "pos": [600, 380],
+      "size": [190, 60]
+    },
+    {
+      "id": "alert",
+      "type": "messagebus",
+      "label": "sk-alert",
+      "sublabel": "optional alert bus",
+      "pos": [60, 500],
+      "size": [220, 60]
+    },
+    {
+      "id": "sched",
+      "type": "backend",
+      "label": "skscheduler",
+      "sublabel": "optional, 24h key-rotation check",
+      "pos": [340, 500],
+      "size": [250, 60]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Core: identity and governance",
+      "wraps": ["capauth", "skmemory", "sksso", "sksec"]
+    },
+    {
+      "kind": "region",
+      "label": "Third-party services, passwordless login",
+      "wraps": ["forgejo", "authentik"]
+    },
+    {
+      "kind": "region",
+      "label": "Comms",
+      "wraps": ["skchat", "skcomms"]
+    },
+    {
+      "kind": "region",
+      "label": "Consumers: delegate to capauth",
+      "wraps": ["skcapstone"]
+    },
+    {
+      "kind": "region",
+      "label": "Platform primitives, optional when present",
+      "wraps": ["alert", "sched"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "capauth-skchat",
+      "from": "capauth",
+      "to": "skchat",
+      "label": "resolve_agent_identity()",
+      "variant": "default"
+    },
+    {
+      "id": "capauth-skcomms",
+      "from": "capauth",
+      "to": "skcomms",
+      "label": "resolve_agent_identity()",
+      "variant": "default"
+    },
+    {
+      "id": "capauth-skmemory",
+      "from": "capauth",
+      "to": "skmemory",
+      "label": "resolve_agent_identity()",
+      "variant": "default"
+    },
+    {
+      "id": "capauth-skcapstone",
+      "from": "capauth",
+      "to": "skcapstone",
+      "label": "resolve_agent_identity()",
+      "variant": "default"
+    },
+    {
+      "id": "capauth-forgejo",
+      "from": "capauth",
+      "to": "forgejo",
+      "label": "OIDC discovery and verify",
+      "variant": "security"
+    },
+    {
+      "id": "capauth-authentik",
+      "from": "capauth",
+      "to": "authentik",
+      "label": "custom PGP challenge-response stage",
+      "variant": "security"
+    },
+    {
+      "id": "capauth-alert",
+      "from": "capauth",
+      "to": "alert",
+      "label": "auth events, optional",
+      "variant": "dashed"
+    },
+    {
+      "id": "capauth-sched",
+      "from": "capauth",
+      "to": "sched",
+      "label": "profile verify every 24h, optional",
+      "variant": "dashed"
+    }
+  ]
+}
